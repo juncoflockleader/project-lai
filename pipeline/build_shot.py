@@ -57,6 +57,19 @@ def _sphere(name: str, radius: float, loc: tuple[float, float, float],
     return obj
 
 
+def _cone(name: str, r_top: float, r_bottom: float, depth: float,
+          loc: tuple[float, float, float], material: bpy.types.Material,
+          vertices: int = 6) -> bpy.types.Object:
+    """一个低段数圆台。顶点数给到 6：胡子是六棱柱，看得出是几何体拼的。"""
+    bpy.ops.mesh.primitive_cone_add(
+        vertices=vertices, radius1=r_bottom, radius2=r_top, depth=depth, location=loc
+    )
+    obj = bpy.context.active_object
+    obj.name = name
+    obj.data.materials.append(material)
+    return obj
+
+
 def _join(objs: list[bpy.types.Object], name: str) -> bpy.types.Object:
     """把零件合成一个物体，好整体上关键帧。"""
     for obj in bpy.context.selected_objects:
@@ -91,21 +104,134 @@ def _origin_to_base(obj: bpy.types.Object) -> bpy.types.Object:
 # 积木代理
 # --------------------------------------------------------------------------
 
+def _build_face(name: str, face: dict, head_z: float, unit: float,
+                head_r: float, head_scale: tuple, skin: bpy.types.Material
+                ) -> list[bpy.types.Object]:
+    """给头上装五官和头发。
+
+    原则是**渣，不是简**。没有五官的方块头是极简，读起来像占位符；
+    牛来 的角色是有脸的 —— 眼睛、眉毛、头发、胡子都做了 —— 只是每一件都做坏了：
+    零件之间不融合，看得见是粘上去的；左右不对称；比例不对。
+
+    但「粘歪了」和「飘在空中」是两回事。所以每个零件都贴着头的实际表面放，
+    下面的 surf_y() 就是干这个的 —— 头是个被缩放过的球，表面不是正圆，
+    照 head_r 直接算会算到头里面去（眼睛就成了骷髅窟窿）或者飘到头外面。
+    """
+    hair_color = tuple(face.get("hair_color", [0.92, 0.92, 0.90]))
+    hair_mat = _material(f"{name}_fa", hair_color)
+    eye_white = _material(f"{name}_yanbai", (0.95, 0.95, 0.93))
+    eye_black = _material(f"{name}_yanzhu", (0.09, 0.08, 0.08))
+
+    # 头是半轴 (a,b,c) 的椭球。脸朝 -Y。
+    a = head_r * head_scale[0]
+    b = head_r * head_scale[1]
+    c = head_r * head_scale[2]
+
+    def surf_y(x: float, dz: float) -> float:
+        """(x, dz) 处头表面的 y 坐标（负值，朝摄影机那面）。"""
+        t = 1.0 - (x / a) ** 2 - (dz / c) ** 2
+        return -b * math.sqrt(max(t, 0.04))
+
+    parts: list[bpy.types.Object] = []
+
+    if face.get("eyes", True):
+        # 眼白一个球，眼珠一个更小的球贴在前面。两只不一样高、不一样大 —— 故意的。
+        for side, ex, edz, er in (
+            ("L", -unit * 0.34, unit * 0.10, unit * 0.21),
+            ("R", unit * 0.31, unit * 0.15, unit * 0.19),
+        ):
+            ey = surf_y(ex, edz) - er * 0.30      # 大半个球鼓在脸外面
+            parts.append(_sphere(f"{name}_yanbai{side}", er, (ex, ey, head_z + edz),
+                                 eye_white, segments=6))
+            parts.append(_sphere(f"{name}_yanzhu{side}", er * 0.46,
+                                 (ex, ey - er * 0.72, head_z + edz), eye_black, segments=6))
+
+    if face.get("brows", True):
+        # 两条厚白块，一边平一边翘
+        for side, bx, bw, tilt in (
+            ("L", -unit * 0.34, unit * 0.46, 0.0),
+            ("R", unit * 0.31, unit * 0.42, -11.0),
+        ):
+            bdz = unit * 0.46
+            brow = _box(f"{name}_mei{side}", (bw, unit * 0.11, unit * 0.13),
+                        (bx, surf_y(bx, bdz) + unit * 0.02, head_z + bdz), hair_mat)
+            brow.rotation_euler = (0.0, math.radians(tilt), 0.0)
+            parts.append(brow)
+
+    if face.get("nose", True):
+        ndz = -unit * 0.06
+        parts.append(_box(f"{name}_bi", (unit * 0.16, unit * 0.24, unit * 0.30),
+                          (unit * 0.02, surf_y(0.0, ndz) - unit * 0.07, head_z + ndz), skin))
+
+    hair = face.get("hair", "none")
+    if hair != "none":
+        # 一顶压扁的白球扣在头顶，往一边偏一点
+        # 扣在头顶，要比头略宽一圈，边缘看得见 —— 像一顶不太合适的帽子。
+        # 半径小于头、中心又压得低的话会整个埋进头骨里，头顶就渲成肉色的了。
+        cap = _sphere(f"{name}_toufa", a * 1.04,
+                      (-unit * 0.05, unit * 0.04, head_z + c * 0.50), hair_mat, segments=8)
+        cap.scale = (1.0, 0.94, 0.70)
+        parts.append(cap)
+        if hair == "elder":
+            # 两鬓各一撮，塞进头侧里，只露一点边，不对称
+            for side, sx, sdz, sh in (("L", -1.0, -unit * 0.20, 0.66),
+                                      ("R", 1.0, -unit * 0.06, 0.52)):
+                parts.append(_box(f"{name}_bin{side}",
+                                  (unit * 0.22, unit * 0.40, unit * sh),
+                                  (sx * a * 0.70, 0.0, head_z + sdz), hair_mat))
+
+    beard = face.get("beard", "none")
+    if beard != "none":
+        length = {"short": 0.9, "long": 1.55}.get(beard, 0.9)
+        # 上宽下窄，六个棱面，不分绺。挂在下巴底下，往前探一点，
+        # 这样它是一把胡子，不是贴在胸口的一块白板。
+        chin_dz = -c * 0.66
+        depth = unit * length
+        parts.append(_cone(
+            f"{name}_huzi",
+            r_top=unit * 0.52, r_bottom=unit * 0.17, depth=depth,
+            loc=(0.0, surf_y(0.0, chin_dz) - unit * 0.05,
+                 head_z + chin_dz - depth * 0.42),
+            material=hair_mat, vertices=6,
+        ))
+
+    return parts
+
+
 def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
-    """一个人。头一个方块，身子一个方块，四条腿手也是方块。没有脖子。"""
+    """一个人。身子四肢是方块，头可以是方块，也可以带脸。
+
+    不给 `face` 就是一个没有脖子的方块人（够用，适合远景和杂役）。
+    给了 `face` 就长出脑袋、眼睛、眉毛、鼻子、头发、胡子 —— 见 _build_face()。
+    """
     height = float(spec.get("height", 1.7))
     color = tuple(spec.get("color", [0.6, 0.45, 0.35]))
+    face = spec.get("face") or {}
     skin = _material(f"{name}_se", color)
 
     unit = height / 8.0
     parts = [
-        _box(f"{name}_tou", (unit * 1.6, unit * 1.4, unit * 1.8), (0, 0, height - unit), skin),
         _box(f"{name}_shen", (unit * 2.2, unit * 1.2, unit * 3.2), (0, 0, height - unit * 3.2), skin),
         _box(f"{name}_zuotui", (unit * 0.8, unit * 0.8, unit * 3.0), (-unit * 0.7, 0, unit * 1.5), skin),
         _box(f"{name}_youtui", (unit * 0.8, unit * 0.8, unit * 3.0), (unit * 0.7, 0, unit * 1.5), skin),
         _box(f"{name}_zuoshou", (unit * 0.6, unit * 0.6, unit * 2.6), (-unit * 1.5, 0, height - unit * 3.4), skin),
         _box(f"{name}_youshou", (unit * 0.6, unit * 0.6, unit * 2.6), (unit * 1.5, 0, height - unit * 3.4), skin),
     ]
+
+    if face:
+        # 有脸的头是低段数的球：有弧度，但段数低到能看见棱。
+        # 和葫芦用的是同一招（八段球），保证全片的"圆"是同一种圆。
+        head_r = unit * 0.92
+        head_z = height - unit * 0.95
+        head = _sphere(f"{name}_tou", head_r, (0, 0, head_z), skin, segments=8)
+        head_scale = (1.0, 0.9, 1.14)
+        head.scale = head_scale
+        parts.append(head)
+        parts += _build_face(name, face, head_z, unit, head_r, head_scale, skin)
+    else:
+        parts.append(_box(f"{name}_tou", (unit * 1.6, unit * 1.4, unit * 1.8),
+                          (0, 0, height - unit), skin))
+
     return _join(parts, name)
 
 

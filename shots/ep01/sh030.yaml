@@ -50,7 +50,17 @@ subjects:
 
   - name: yeye
     asset: characters/yeye.blend
-    proxy: {kind: humanoid, height: 1.62, color: [0.62, 0.48, 0.36]}
+    proxy:
+      kind: humanoid
+      height: 1.62
+      color: [0.62, 0.48, 0.36]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: elder          # 白头发 + 两边各一撮，不对称
+        beard: long          # 爷爷的招牌
+        hair_color: [0.93, 0.93, 0.91]
     keys:
       - {t: 0.0, loc: [-3.0, -0.8, 0.0], rot: [0.0, 0.0, -25.0]}
       - {t: 6.0, loc: [-2.6, -0.8, 0.0], rot: [0.0, 0.0, -25.0]}
