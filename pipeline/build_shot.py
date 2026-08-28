@@ -218,6 +218,76 @@ def _build_face(name: str, face: dict, head_z: float, unit: float,
     return parts
 
 
+def _build_tail(name: str, unit: float, mat: bpy.types.Material,
+                tip: bool = True) -> list[bpy.types.Object]:
+    """蛇尾，替掉两条腿。
+
+    立着那一节是个六棱台，从袍子里伸下来，落地。tip 再加一节趴在地上的尾尖。
+
+    经费账：两条腿是两个方块，12 个面。立着这一节 6 棱台是 8 个面，省 4 个。
+    加上地上那节尾尖是 16 个面，比腿多 4 个。所以「改尾巴省经费」只在
+    不要尾尖的时候成立。
+    """
+    # 顶端要伸进袍子里，不然下摆和尾巴之间会露一道缝
+    parts = [
+        _cone(f"{name}_weiba", r_top=unit * 1.15, r_bottom=unit * 0.40,
+              depth=unit * 4.2, loc=(0.0, 0.0, unit * 2.1), material=mat, vertices=6),
+    ]
+    if tip:
+        # 趴在地上往前伸的一节，不弯 —— 不做曲线，牛来 那条蛇也是直的
+        tail_tip = _cone(f"{name}_weijian", r_top=unit * 0.38, r_bottom=unit * 0.05,
+                         depth=unit * 3.4, loc=(0.0, -unit * 1.9, unit * 0.32),
+                         material=mat, vertices=6)
+        tail_tip.rotation_euler = (math.radians(90.0), 0.0, 0.0)
+        parts.append(tail_tip)
+    return parts
+
+
+def _build_scorpion_tail(name: str, height: float, unit: float,
+                         color: tuple) -> list[bpy.types.Object]:
+    """蝎尾：从右胯外侧起拱，翻过头顶，毒针朝前下方。
+
+    沿一段圆弧采样生成，不手摆坐标 —— 手摆过两版，节与节之间总是留缝，
+    读起来是一串飘着的积木。这里间距固定小于节长，必然搭接。
+
+    另一个坑：尾巴不能在身子正后方。摄影机在正前，下面几节会被自己的躯干
+    挡掉，只剩顶上两块浮在天上。所以整条沿 x 往身体外侧让开，越往上越回收。
+    """
+    mat = _material(f"{name}_xiewei", color)
+
+    count = 8
+    # 弧角。end 给到 150 的话尾巴会绕下来糊在自己脸上，挡住右眼；
+    # 收到 105，毒针停在头顶前上方，正好悬着。
+    th_start, th_end = -50.0, 105.0
+    radius = unit * 3.2
+    pivot_y, pivot_z = unit * 0.2, unit * 6.2
+    seg_len = unit * 2.2                # 节长 > 间距(约 1.6u)，所以一定搭上
+
+    parts = []
+    for i in range(count):
+        t = i / (count - 1)
+        th = math.radians(th_start + (th_end - th_start) * t)
+        x = unit * (2.40 - 2.10 * t)    # 起手让开身体，到头顶收回中线
+        w = unit * (0.64 - 0.30 * t)    # 一节比一节细
+        seg = _box(f"{name}_wei{i}", (w, w, seg_len),
+                   (x, pivot_y + radius * math.cos(th),
+                    pivot_z + radius * math.sin(th)), mat)
+        # 绕 X 转 th，正好让节的长轴对上该点的切线
+        seg.rotation_euler = (th, 0.0, 0.0)
+        parts.append(seg)
+
+    # 毒针接着弧往下扎。尖头在 +Z，所以 r_top 给小的、r_bottom 给大的
+    th_sting = math.radians(th_end + 20.0)
+    sting = _cone(f"{name}_dubiao", r_top=unit * 0.03, r_bottom=unit * 0.30,
+                  depth=unit * 1.7,
+                  loc=(unit * 0.28, pivot_y + radius * math.cos(th_sting),
+                       pivot_z + radius * math.sin(th_sting)),
+                  material=mat, vertices=5)
+    sting.rotation_euler = (th_sting, 0.0, 0.0)
+    parts.append(sting)
+    return parts
+
+
 def _build_shoes(name: str, shoes: dict, unit: float) -> list[bpy.types.Object]:
     """两只布鞋。鞋帮一块，鞋底一块，右脚往外撇七度。
 
@@ -318,18 +388,30 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
     unit = height / 8.0
     parts = [
         _box(f"{name}_shen", (unit * 2.2, unit * 1.2, unit * 3.2), (0, 0, height - unit * 3.2), skin),
-        _box(f"{name}_zuotui", (unit * 0.8, unit * 0.8, unit * 3.0), (-unit * 0.7, 0, unit * 1.5), skin),
-        _box(f"{name}_youtui", (unit * 0.8, unit * 0.8, unit * 3.0), (unit * 0.7, 0, unit * 1.5), skin),
         _box(f"{name}_zuoshou", (unit * 0.6, unit * 0.6, unit * 2.6), (-unit * 1.5, 0, height - unit * 3.4), skin),
         _box(f"{name}_youshou", (unit * 0.6, unit * 0.6, unit * 2.6), (unit * 1.5, 0, height - unit * 3.4), skin),
     ]
+
+    if spec.get("lower") == "tail":
+        lower_mat = (_material(f"{name}_weise", tuple(spec["lower_color"]))
+                     if spec.get("lower_color") else skin)
+        parts += _build_tail(name, unit, lower_mat, tip=spec.get("tail_tip", True))
+    else:
+        parts.append(_box(f"{name}_zuotui", (unit * 0.8, unit * 0.8, unit * 3.0),
+                          (-unit * 0.7, 0, unit * 1.5), skin))
+        parts.append(_box(f"{name}_youtui", (unit * 0.8, unit * 0.8, unit * 3.0),
+                          (unit * 0.7, 0, unit * 1.5), skin))
+
+    if spec.get("tail") == "scorpion":
+        parts += _build_scorpion_tail(name, height, unit,
+                                      tuple(spec.get("tail_color", color)))
 
     clothes = spec.get("clothes") or {}
     if clothes:
         parts += _build_clothes(name, clothes, height, unit)
 
     shoes = spec.get("shoes") or {}
-    if shoes:
+    if shoes and spec.get("lower") != "tail":
         parts += _build_shoes(name, shoes, unit)
 
     if face:
