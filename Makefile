@@ -1,4 +1,4 @@
-# project-lai —— 葫芦来
+# project-lai —— 葫来
 #
 # 三个动词：validate（校验分镜）、render（渲一个镜头）、all（渲全部）。
 # 分工：系统 python3 管校验和编译，Blender 只管搭场景和渲帧。
