@@ -1,0 +1,175 @@
+id: sh040
+episode: ep01
+title: 七个葫芦娃落地
+duration: 5.0
+
+camera:
+  lens: 35
+  keys:
+    # 七个娃横跨 x -2.25~2.25，退到 6.5 米才装得下
+    - {t: 0.0, loc: [0.0, -6.9, 1.30], rot: [87.0, 0.0, 0.0]}
+    - {t: 5.0, loc: [0.0, -5.9, 1.20], rot: [87.0, 0.0, 0.0]}
+
+subjects:
+  # 大娃：力大无穷
+  - name: wa1
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: plain
+        hair_color: [0.12, 0.11, 0.12]
+      clothes:
+        robe: [0.78, 0.14, 0.12]
+        sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
+        length: short
+        sleeves: false               # 娃是光膀子的
+    keys:
+      - {t: 0.0, loc: [-2.25, 0.0, 2.6]}
+      - {t: 0.35, loc: [-2.25, 0.0, 0.0]}
+      - {t: 5.0, loc: [-2.25, 0.0, 0.0]}
+
+  # 二娃：千里眼顺风耳
+  - name: wa2
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: plain
+        hair_color: [0.12, 0.11, 0.12]
+      clothes:
+        robe: [0.88, 0.48, 0.08]
+        sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
+        length: short
+        sleeves: false               # 娃是光膀子的
+    keys:
+      - {t: 0.0, loc: [-1.50, 0.0, 2.6]}
+      - {t: 0.63, loc: [-1.50, 0.0, 0.0]}
+      - {t: 5.0, loc: [-1.50, 0.0, 0.0]}
+    flash: [2.4, 3.0]              # 千里眼。科长说闪两下就行了
+
+  # 三娃：铜头铁臂
+  - name: wa3
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: plain
+        hair_color: [0.12, 0.11, 0.12]
+      clothes:
+        robe: [0.92, 0.82, 0.1]
+        sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
+        length: short
+        sleeves: false               # 娃是光膀子的
+    keys:
+      - {t: 0.0, loc: [-0.75, 0.0, 2.6]}
+      - {t: 0.91, loc: [-0.75, 0.0, 0.0]}
+      - {t: 5.0, loc: [-0.75, 0.0, 0.0]}
+
+  # 四娃：喷火
+  - name: wa4
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: plain
+        hair_color: [0.12, 0.11, 0.12]
+      clothes:
+        robe: [0.2, 0.62, 0.22]
+        sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
+        length: short
+        sleeves: false               # 娃是光膀子的
+    keys:
+      - {t: 0.0, loc: [0.00, 0.0, 2.6]}
+      - {t: 1.19, loc: [0.00, 0.0, 0.0]}
+      - {t: 5.0, loc: [0.00, 0.0, 0.0]}
+
+  # 五娃：喷水
+  - name: wa5
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: plain
+        hair_color: [0.12, 0.11, 0.12]
+      clothes:
+        robe: [0.16, 0.66, 0.62]
+        sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
+        length: short
+        sleeves: false               # 娃是光膀子的
+    keys:
+      - {t: 0.0, loc: [0.75, 0.0, 2.6]}
+      - {t: 1.47, loc: [0.75, 0.0, 0.0]}
+      - {t: 5.0, loc: [0.75, 0.0, 0.0]}
+
+  # 六娃：隐身
+  - name: wa6
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: plain
+        hair_color: [0.12, 0.11, 0.12]
+      clothes:
+        robe: [0.14, 0.32, 0.78]
+        sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
+        length: short
+        sleeves: false               # 娃是光膀子的
+    keys:
+      - {t: 0.0, loc: [1.50, 0.0, 2.6]}
+      - {t: 1.75, loc: [1.50, 0.0, 0.0]}
+      - {t: 5.0, loc: [1.50, 0.0, 0.0]}
+
+  # 七娃：宝葫芦
+  - name: wa7
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: plain
+        hair_color: [0.12, 0.11, 0.12]
+      clothes:
+        robe: [0.52, 0.18, 0.68]
+        sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
+        length: short
+        sleeves: false               # 娃是光膀子的
+      hold: gourd                   # 宝葫芦。复用藤上那七个葫芦的同一个函数
+      hold_scale: 0.30
+      hold_color: [0.90, 0.72, 0.16]   # 宝葫芦是金的，跟紫衣服岔开，不然看不出来
+    keys:
+      - {t: 0.0, loc: [2.25, 0.0, 2.6]}
+      - {t: 2.03, loc: [2.25, 0.0, 0.0]}
+      - {t: 5.0, loc: [2.25, 0.0, 0.0]}
+
+notes: |
+  七个娃从天上匀速掉下来，一个一个落地，不做缓冲不做弹跳。
+  二娃的千里眼是眼睛闪两下（材质动画，不加面）。
+  七娃手里的宝葫芦和 sh030 藤上那七个葫芦是同一个 _gourd_parts()。

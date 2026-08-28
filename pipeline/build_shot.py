@@ -410,6 +410,14 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
     if clothes:
         parts += _build_clothes(name, clothes, height, unit)
 
+    if spec.get("hold") == "gourd":
+        # 宝葫芦。就是藤上那七个葫芦的同一个函数，缩小了摆到身前手的高度。
+        parts += _gourd_parts(
+            f"{name}_baohulu",
+            tuple(spec.get("hold_color", color)),
+            float(spec.get("hold_scale", 0.30)),
+            offset=(0.0, -unit * 1.15, height - unit * 4.1))
+
     shoes = spec.get("shoes") or {}
     if shoes and spec.get("lower") != "tail":
         parts += _build_shoes(name, shoes, unit)
@@ -450,16 +458,25 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
     return _join(parts, name)
 
 
+def _gourd_parts(name: str, color: tuple, scale: float,
+                 offset: tuple = (0.0, 0.0, 0.0)) -> list[bpy.types.Object]:
+    """一个葫芦的零件：两个球摞着。
+
+    拆出来是为了复用 —— 藤上那七个葫芦和七娃手里那个宝葫芦走的是这一个函数，
+    没有第二份建模。科长问的就是这个，能复用。
+    """
+    skin = _material(f"{name}_se", color)
+    ox, oy, oz = offset
+    return [
+        _sphere(f"{name}_xia", 0.34 * scale, (ox, oy, oz + 0.34 * scale), skin),
+        _sphere(f"{name}_shang", 0.20 * scale, (ox, oy, oz + 0.78 * scale), skin),
+    ]
+
+
 def _proxy_gourd(name: str, spec: dict) -> bpy.types.Object:
     """一个葫芦。两个球摞着。"""
-    color = tuple(spec.get("color", [0.85, 0.55, 0.1]))
-    scale = float(spec.get("scale", 1.0))
-    skin = _material(f"{name}_se", color)
-    parts = [
-        _sphere(f"{name}_xia", 0.34 * scale, (0, 0, 0.34 * scale), skin),
-        _sphere(f"{name}_shang", 0.20 * scale, (0, 0, 0.78 * scale), skin),
-    ]
-    return _join(parts, name)
+    return _join(_gourd_parts(name, tuple(spec.get("color", [0.85, 0.55, 0.1])),
+                              float(spec.get("scale", 1.0))), name)
 
 
 def _proxy_rock(name: str, spec: dict) -> bpy.types.Object:
@@ -604,6 +621,36 @@ def apply_lipsync(objs: dict[str, bpy.types.Object], shot: Shot, style: dict, fp
 # 入口
 # --------------------------------------------------------------------------
 
+def apply_flash(name: str, times: list, fps: int) -> int:
+    """眼睛闪烁。动的是眼珠材质的颜色，一个面都不加。
+
+    科长说千里眼给眼睛闪两下就行了。这是全项目最便宜的特效：
+    加零件要面数，加光源要算光，改材质颜色不要钱。
+
+    闪的窗口给到 5 帧 —— degrade.apply_step() 会把动画重采样到 12fps，
+    窗口太窄会被整个跳过，闪了等于没闪。
+    """
+    material = bpy.data.materials.get(f"{name}_yanzhu")
+    if material is None or not material.use_nodes:
+        return 0
+    bsdf = material.node_tree.nodes.get("Principled BSDF")
+    if bsdf is None:
+        return 0
+    socket = bsdf.inputs.get("Base Color")
+    if socket is None:
+        return 0
+
+    dark = tuple(socket.default_value)
+    bright = (1.0, 0.97, 0.55, 1.0)
+
+    for t in times:
+        frame = round(t * fps)
+        for offset, color in ((-3, dark), (0, bright), (4, bright), (7, dark)):
+            socket.default_value = color
+            socket.keyframe_insert("default_value", frame=max(0, frame + offset))
+    return len(times)
+
+
 def build(shot: Shot, style: dict) -> dict:
     """搭场景。不施加画质规格 —— 那是 degrade.apply_all 的活。"""
     fps = int(style["timing"]["fps"])
@@ -618,10 +665,13 @@ def build(shot: Shot, style: dict) -> dict:
 
     objs: dict[str, bpy.types.Object] = {}
     proxied: list[str] = []
+    flashed = 0
     for subject in shot.subjects:
         obj = build_subject(subject)
         objs[subject.name] = obj
         apply_keys(obj, subject.keys, fps)
+        if subject.flash:
+            flashed += apply_flash(subject.name, subject.flash, fps)
         if not subject.has_asset():
             proxied.append(subject.name)
 
@@ -633,4 +683,5 @@ def build(shot: Shot, style: dict) -> dict:
         "subjects": len(objs),
         "proxied": proxied,
         "lipsync": flapped,
+        "flash": flashed,
     }

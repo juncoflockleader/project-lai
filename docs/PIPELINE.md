@@ -95,6 +95,7 @@ subjects:
     proxy: {kind: humanoid, height: 1.62, color: [0.62,0.48,0.36]}
     keys:
       - {t: 0.0, loc: [-1.6,0,0], rot: [0,0,18]}
+    flash: [2.4, 3.0]       # 选填，眼睛闪烁的时刻（秒）。要 proxy.face.eyes = true
 
 dialogue:
   - {t: 0.6, who: yeye, line: "这个山，要塌。", dur: 1.4}
@@ -107,6 +108,7 @@ notes: |
 - `rot` 是角度，不是弧度。
 - `keys` 的 `t` 必须递增、不能重复、不能超过 `duration`。
 - `asset` 和 `proxy` 至少要有一个。
+- `flash` 是 subject 级的，不在 proxy 里 —— 它是动画不是几何。时刻要落在 `duration` 内。
 - `dialogue[].who` 必须在 `subjects` 里，`t + dur` 不能超过 `duration`。
 
 校验器会逐条检查这些，报错带文件名和字段路径。

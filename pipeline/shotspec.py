@@ -56,6 +56,8 @@ class Subject:
     asset: str | None = None
     proxy: dict[str, Any] = field(default_factory=dict)
     keys: list[Key] = field(default_factory=list)
+    # 眼睛闪烁的时刻（秒）。千里眼用，见 build_shot.apply_flash()
+    flash: list[float] = field(default_factory=list)
 
     def asset_path(self, root: str = REPO_ROOT) -> str | None:
         if not self.asset:
@@ -224,6 +226,22 @@ def load_shot(path: str) -> Shot:
             )
         if not s_raw.get("asset") and not proxy:
             raise SpecError(f"{where}: asset 和 proxy 至少要有一个")
+        flash_raw = s_raw.get("flash") or []
+        if not isinstance(flash_raw, (list, tuple)):
+            raise SpecError(f"{where}.flash: 要一个时刻列表，拿到 {flash_raw!r}")
+        flash: list[float] = []
+        for j, ft in enumerate(flash_raw):
+            try:
+                ftv = float(ft)
+            except (TypeError, ValueError) as exc:
+                raise SpecError(f"{where}.flash[{j}]: 必须是数字，拿到 {ft!r}") from exc
+            if ftv < 0 or ftv > duration + 1e-6:
+                raise SpecError(
+                    f"{where}.flash[{j}]: {ftv} 不在镜头时长 0~{duration} 之内")
+            flash.append(ftv)
+        if flash and not (s_raw.get("proxy") or {}).get("face", {}).get("eyes", False):
+            raise SpecError(f"{where}.flash: 要闪眼睛，proxy.face.eyes 得是 true")
+
         subject = Subject(
             name=str(s_raw["name"]),
             asset=s_raw.get("asset"),
@@ -232,6 +250,7 @@ def load_shot(path: str) -> Shot:
                 _parse_key(k, f"{where}.keys[{j}]")
                 for j, k in enumerate(s_raw.get("keys", []))
             ],
+            flash=flash,
         )
         _check_keys(subject.keys, duration, f"{where}.keys")
         subjects.append(subject)
@@ -321,6 +340,7 @@ def shot_to_dict(shot: Shot) -> dict[str, Any]:
                 "asset": s.asset,
                 "proxy": s.proxy,
                 "keys": [_key_to_dict(k) for k in s.keys],
+                "flash": s.flash,
             }
             for s in shot.subjects
         ],
@@ -360,6 +380,7 @@ def shot_from_dict(raw: dict[str, Any]) -> Shot:
                 asset=s.get("asset"),
                 proxy=s.get("proxy") or {},
                 keys=keys(s.get("keys", [])),
+                flash=[float(f) for f in s.get("flash", [])],
             )
             for s in raw.get("subjects", [])
         ],

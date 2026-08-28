@@ -18,5 +18,8 @@ beats:
   - id: b3
     name: 葫芦藤结出七个葫芦
     shots: [sh030]
+  - id: b4
+    name: 七个葫芦娃落地
+    shots: [sh040]
 
 status: 骨架。三个镜头是流水线样例，不是最终分镜。
