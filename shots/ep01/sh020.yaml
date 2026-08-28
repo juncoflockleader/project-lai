@@ -30,6 +30,7 @@ subjects:
         pupil: slit                   # 竖瞳
         brows: true
         nose: true
+        chin: pointed                 # 尖下巴。科长说尖才好看
         hair: hood                    # 蛇冠
         fangs: true                   # 两颗獠牙，一长一短
         hair_color: [0.17, 0.31, 0.21]

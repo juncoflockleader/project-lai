@@ -337,8 +337,27 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
         # 和葫芦用的是同一招（八段球），保证全片的"圆"是同一种圆。
         head_r = unit * 0.92
         head_z = height - unit * 0.95
+
+        if face.get("chin") == "pointed":
+            # 瓜子脸：球压扁当天灵盖，下半张脸换成一个八棱锥。
+            #
+            # 两个坑：
+            # 一是不能"在圆头底下再粘一个锥子" —— 球还在那儿，比锥子宽，
+            #   轮廓照样是圆的，加了等于没加。下半张脸得整个换掉，
+            #   所以天灵盖要压到 0.66，让球的底边收在下巴上面。
+            # 二是头要抬。默认头底 1.29、袍子肩线 1.387，下颌本来就埋在衣服里，
+            #   尖头再尖也是尖在领子内部。抬到 unit*0.60 才露得出来。
+            head_z = height - unit * 0.60
+            head_scale = (1.0, 0.9, 0.66)
+            depth = unit * 1.55
+            parts.append(_cone(
+                f"{name}_lian", r_top=head_r * 1.02, r_bottom=unit * 0.05,
+                depth=depth, loc=(0.0, 0.0, head_z + unit * 0.05 - depth * 0.42),
+                material=skin, vertices=8))
+        else:
+            head_scale = (1.0, 0.9, 1.14)
+
         head = _sphere(f"{name}_tou", head_r, (0, 0, head_z), skin, segments=8)
-        head_scale = (1.0, 0.9, 1.14)
         head.scale = head_scale
         parts.append(head)
         parts += _build_face(name, face, head_z, unit, head_r, head_scale, skin)
