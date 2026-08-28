@@ -67,6 +67,9 @@ subjects:
         length: long                  # 盖到小腿，露脚踝
         sleeves: true
         collar: true
+      shoes:
+        color: [0.16, 0.15, 0.14]    # 黑布鞋
+        sole: [0.86, 0.84, 0.78]     # 白鞋底，右脚往外撇七度
     keys:
       - {t: 0.0, loc: [-3.0, -0.8, 0.0], rot: [0.0, 0.0, -25.0]}
       - {t: 6.0, loc: [-2.6, -0.8, 0.0], rot: [0.0, 0.0, -25.0]}

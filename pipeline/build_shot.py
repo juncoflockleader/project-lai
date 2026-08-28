@@ -143,8 +143,11 @@ def _build_face(name: str, face: dict, head_z: float, unit: float,
             ey = surf_y(ex, edz) - er * 0.30      # 大半个球鼓在脸外面
             parts.append(_sphere(f"{name}_yanbai{side}", er, (ex, ey, head_z + edz),
                                  eye_white, segments=6))
-            parts.append(_sphere(f"{name}_yanzhu{side}", er * 0.46,
-                                 (ex, ey - er * 0.72, head_z + edz), eye_black, segments=6))
+            pupil = _sphere(f"{name}_yanzhu{side}", er * 0.46,
+                            (ex, ey - er * 0.72, head_z + edz), eye_black, segments=6)
+            if face.get("pupil") == "slit":
+                pupil.scale = (0.42, 1.0, 1.85)   # 竖瞳。压扁拉长，不是画上去的
+            parts.append(pupil)
 
     if face.get("brows", True):
         # 两条厚白块，一边平一边翘
@@ -172,6 +175,12 @@ def _build_face(name: str, face: dict, head_z: float, unit: float,
                       (-unit * 0.05, unit * 0.04, head_z + c * 0.50), hair_mat, segments=8)
         cap.scale = (1.0, 0.94, 0.70)
         parts.append(cap)
+        if hair == "hood":
+            # 蛇冠。一片压扁的大盘子立在脑后，八段，边缘看得见棱。
+            hood = _sphere(f"{name}_shemao", a * 1.18,
+                           (0.0, a * 0.62, head_z + unit * 0.30), hair_mat, segments=8)
+            hood.scale = (1.0, 0.15, 0.92)
+            parts.append(hood)
         if hair == "elder":
             # 两鬓各一撮，塞进头侧里，只露一点边，不对称
             for side, sx, sdz, sh in (("L", -1.0, -unit * 0.20, 0.66),
@@ -179,6 +188,17 @@ def _build_face(name: str, face: dict, head_z: float, unit: float,
                 parts.append(_box(f"{name}_bin{side}",
                                   (unit * 0.22, unit * 0.40, unit * sh),
                                   (sx * a * 0.70, 0.0, head_z + sdz), hair_mat))
+
+    if face.get("fangs", False):
+        # 两颗獠牙，上宽下尖，一颗比另一颗长
+        for side, fx, fl in (("L", -unit * 0.17, 0.34), ("R", unit * 0.15, 0.28)):
+            fdz = -c * 0.42
+            depth = unit * fl
+            parts.append(_cone(
+                f"{name}_ya{side}", r_top=unit * 0.09, r_bottom=unit * 0.015,
+                depth=depth, loc=(fx, surf_y(fx, fdz) - unit * 0.03,
+                                  head_z + fdz - depth * 0.4),
+                material=eye_white, vertices=5))
 
     beard = face.get("beard", "none")
     if beard != "none":
@@ -195,6 +215,27 @@ def _build_face(name: str, face: dict, head_z: float, unit: float,
             material=hair_mat, vertices=6,
         ))
 
+    return parts
+
+
+def _build_shoes(name: str, shoes: dict, unit: float) -> list[bpy.types.Object]:
+    """两只布鞋。鞋帮一块，鞋底一块，右脚往外撇七度。
+
+    腿是从 z=0 长上去的，所以鞋直接坐在地上，往前（-Y）探出去一截当鞋头。
+    """
+    upper = _material(f"{name}_xie", tuple(shoes.get("color", [0.16, 0.15, 0.14])))
+    sole = _material(f"{name}_xiedi", tuple(shoes.get("sole", [0.86, 0.84, 0.78])))
+
+    parts: list[bpy.types.Object] = []
+    for side, sx, splay in (("L", -1.0, 0.0), ("R", 1.0, -7.0)):
+        x = sx * unit * 0.7
+        di = _box(f"{name}_xiedi{side}", (unit * 1.0, unit * 1.6, unit * 0.14),
+                  (x, -unit * 0.3, unit * 0.07), sole)
+        bang = _box(f"{name}_xie{side}", (unit * 0.92, unit * 1.45, unit * 0.34),
+                    (x, -unit * 0.28, unit * 0.31), upper)
+        for obj in (di, bang):
+            obj.rotation_euler = (0.0, 0.0, math.radians(splay))
+        parts += [di, bang]
     return parts
 
 
@@ -249,14 +290,16 @@ def _build_clothes(name: str, clothes: dict, height: float, unit: float
         parts.append(sash)
 
     if clothes.get("collar", True):
-        # 对襟：两条斜着的窄块，在胸口交叉成一个 V，不完全对称
-        for side, sx, tilt, ln in (("L", -1.0, 17.0, 1.05), ("R", 1.0, -14.0, 0.95)):
-            collar = _box(f"{name}_ling{side}",
-                          (unit * 0.2, unit * 0.13, unit * ln),
-                          (sx * unit * 0.26, -robe_d * 0.52,
-                           shoulder_z - unit * ln * 0.42), collar_mat)
-            collar.rotation_euler = (0.0, math.radians(tilt), 0.0)
-            parts.append(collar)
+        # 领子一条横带，前襟一条竖条，竖条稍微偏中线。
+        # 别做成两条斜着交叉的 —— 试过，没胡子挡的时候就是插在胸口的两根筷子。
+        parts.append(_box(f"{name}_lingzi",
+                          (robe_w * 0.60, robe_d * 1.05, unit * 0.22),
+                          (0.0, 0.0, shoulder_z - unit * 0.13), collar_mat))
+        jin = _box(f"{name}_qianjin",
+                   (unit * 0.22, robe_d * 1.04, unit * 1.45),
+                   (unit * 0.06, 0.0, shoulder_z - unit * 0.95), collar_mat)
+        jin.rotation_euler = (0.0, math.radians(2.0), 0.0)
+        parts.append(jin)
 
     return parts
 
@@ -284,6 +327,10 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
     clothes = spec.get("clothes") or {}
     if clothes:
         parts += _build_clothes(name, clothes, height, unit)
+
+    shoes = spec.get("shoes") or {}
+    if shoes:
+        parts += _build_shoes(name, shoes, unit)
 
     if face:
         # 有脸的头是低段数的球：有弧度，但段数低到能看见棱。
