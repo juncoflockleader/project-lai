@@ -451,9 +451,23 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
         head.scale = head_scale
         parts.append(head)
         parts += _build_face(name, face, head_z, unit, head_r, head_scale, skin)
+        # 有头发的话葫芦要坐在头发上面，不是坐在头骨上面
+        head_top = head_z + head_r * head_scale[2] * (
+            1.30 if face.get("hair", "none") != "none" else 0.94)
     else:
         parts.append(_box(f"{name}_tou", (unit * 1.6, unit * 1.4, unit * 1.8),
                           (0, 0, height - unit), skin))
+        head_top = height - unit + unit * 0.9
+
+    # 必须放在建完头之后 —— head_top 是那儿算出来的
+    if spec.get("hat") == "gourd":
+        # 头顶的葫芦。科长说什么都能省，娃可以不要，葫芦不能不要。
+        # 还是同一个 _gourd_parts()，这是第三处复用（藤上的、手里的、头顶的）。
+        parts += _gourd_parts(
+            f"{name}_toudinghulu",
+            tuple(spec.get("hat_color", color)),
+            float(spec.get("hat_scale", 0.24)),
+            offset=(0.0, 0.0, head_top))
 
     return _join(parts, name)
 

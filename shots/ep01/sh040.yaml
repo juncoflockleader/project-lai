@@ -28,6 +28,9 @@ subjects:
         sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
         length: short
         sleeves: false               # 娃是光膀子的
+      hat: gourd                     # 头顶葫芦。科长说葫芦不能不要
+      hat_color: [0.78, 0.14, 0.12]
+      hat_scale: 0.24
     keys:
       - {t: 0.0, loc: [-2.25, 0.0, 2.6]}
       - {t: 0.35, loc: [-2.25, 0.0, 0.0]}
@@ -50,6 +53,9 @@ subjects:
         sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
         length: short
         sleeves: false               # 娃是光膀子的
+      hat: gourd                     # 头顶葫芦。科长说葫芦不能不要
+      hat_color: [0.88, 0.48, 0.08]
+      hat_scale: 0.24
     keys:
       - {t: 0.0, loc: [-1.50, 0.0, 2.6]}
       - {t: 0.63, loc: [-1.50, 0.0, 0.0]}
@@ -73,6 +79,9 @@ subjects:
         sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
         length: short
         sleeves: false               # 娃是光膀子的
+      hat: gourd                     # 头顶葫芦。科长说葫芦不能不要
+      hat_color: [0.92, 0.82, 0.1]
+      hat_scale: 0.24
     keys:
       - {t: 0.0, loc: [-0.75, 0.0, 2.6]}
       - {t: 0.91, loc: [-0.75, 0.0, 0.0]}
@@ -95,6 +104,9 @@ subjects:
         sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
         length: short
         sleeves: false               # 娃是光膀子的
+      hat: gourd                     # 头顶葫芦。科长说葫芦不能不要
+      hat_color: [0.2, 0.62, 0.22]
+      hat_scale: 0.24
     keys:
       - {t: 0.0, loc: [0.00, 0.0, 2.6]}
       - {t: 1.19, loc: [0.00, 0.0, 0.0]}
@@ -117,6 +129,9 @@ subjects:
         sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
         length: short
         sleeves: false               # 娃是光膀子的
+      hat: gourd                     # 头顶葫芦。科长说葫芦不能不要
+      hat_color: [0.16, 0.66, 0.62]
+      hat_scale: 0.24
     keys:
       - {t: 0.0, loc: [0.75, 0.0, 2.6]}
       - {t: 1.47, loc: [0.75, 0.0, 0.0]}
@@ -139,6 +154,9 @@ subjects:
         sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
         length: short
         sleeves: false               # 娃是光膀子的
+      hat: gourd                     # 头顶葫芦。科长说葫芦不能不要
+      hat_color: [0.14, 0.32, 0.78]
+      hat_scale: 0.24
     keys:
       - {t: 0.0, loc: [1.50, 0.0, 2.6]}
       - {t: 1.75, loc: [1.50, 0.0, 0.0]}
@@ -161,6 +179,9 @@ subjects:
         sash: [0.22, 0.42, 0.20]     # 叶子腰带，七个娃都一样
         length: short
         sleeves: false               # 娃是光膀子的
+      hat: gourd                     # 头顶葫芦。科长说葫芦不能不要
+      hat_color: [0.52, 0.18, 0.68]
+      hat_scale: 0.24
       hold: gourd                   # 宝葫芦。复用藤上那七个葫芦的同一个函数
       hold_scale: 0.30
       hold_color: [0.90, 0.72, 0.16]   # 宝葫芦是金的，跟紫衣服岔开，不然看不出来
