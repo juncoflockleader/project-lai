@@ -1,0 +1,22 @@
+# 第一集：七色葫芦
+#
+# 对位 1986 版《葫芦兄弟》第一集。这里只记结构，逐镜在同目录的 shNNN.yaml。
+# 不抄原片画面，只对齐叙事节拍 —— 见 docs/SOURCE_HULUWA.md「权利」一节。
+
+id: ep01
+title: 七色葫芦
+source: 《葫芦兄弟》(1986) 第一集
+target_duration: 600      # 原集约 10 分钟，重制不追求等长
+
+beats:
+  - id: b1
+    name: 山，老汉，穿山甲
+    shots: [sh010]
+  - id: b2
+    name: 妖怪出山
+    shots: [sh020]
+  - id: b3
+    name: 葫芦藤结出七个葫芦
+    shots: [sh030]
+
+status: 骨架。三个镜头是流水线样例，不是最终分镜。

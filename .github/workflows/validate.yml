@@ -1,0 +1,19 @@
+name: validate
+
+# 只校验分镜，不渲染。CI 上没有 Blender，也不需要 ——
+# 校验器是纯 Python，这正是把编译步骤拆出来的好处之一。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: python -m pipeline.validate

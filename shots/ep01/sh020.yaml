@@ -1,0 +1,37 @@
+id: sh020
+episode: ep01
+title: 山裂开，两个妖怪出来了
+duration: 5.0
+
+camera:
+  lens: 28
+  keys:
+    - {t: 0.0, loc: [0.0, -10.0, 3.2], rot: [80.0, 0.0, 0.0]}
+    - {t: 5.0, loc: [0.0, -10.0, 3.2], rot: [80.0, 0.0, 0.0]}
+
+subjects:
+  - name: shan
+    proxy: {kind: box, size: [6.0, 3.0, 4.0], color: [0.40, 0.38, 0.36]}
+    keys:
+      - {t: 0.0, loc: [0.0, 2.0, 0.0]}
+      - {t: 2.0, loc: [0.0, 2.0, 0.0]}
+      # 山裂开的方式是整块往下沉。不做碎块模拟。
+      - {t: 5.0, loc: [0.0, 2.0, -1.8]}
+
+  - name: shejing
+    proxy: {kind: snake, color: [0.30, 0.58, 0.34]}
+    keys:
+      - {t: 2.0, loc: [-1.2, 2.0, -2.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 5.0, loc: [-1.2, 1.0, 0.4], rot: [0.0, 0.0, 40.0]}
+
+  - name: xiezijing
+    proxy: {kind: rock, scale: 0.8, color: [0.55, 0.22, 0.18]}
+    keys:
+      - {t: 2.4, loc: [1.4, 2.0, -2.0]}
+      - {t: 5.0, loc: [1.4, 1.2, 0.2]}
+
+dialogue:
+  - {t: 3.2, who: shejing, line: "出来了。", dur: 1.0}
+
+notes: |
+  原集这里有光效和烟。规格里没有体积雾，也不打算加 —— 见 docs/NIULAI_LOOK.md 第 7 条。

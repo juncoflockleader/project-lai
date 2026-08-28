@@ -1,0 +1,3 @@
+# 只有校验器和装配脚本用得到；Blender 内部脚本走 Blender 自带的 Python。
+PyYAML>=6.0
+tomli>=2.0 ; python_version < "3.11"

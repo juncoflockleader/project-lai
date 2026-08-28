@@ -1,0 +1,20 @@
+# 渲染产物
+out/
+*.mp4
+*.mov
+*.png
+*.exr
+*.wav
+
+# Blender
+*.blend1
+*.blend2
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 系统
+.DS_Store

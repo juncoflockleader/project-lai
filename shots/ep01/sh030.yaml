@@ -1,0 +1,63 @@
+id: sh030
+episode: ep01
+title: 葫芦藤上结出七个葫芦
+duration: 6.0
+
+camera:
+  lens: 35
+  keys:
+    # 七个葫芦横跨 x -1.8~1.8，35mm 下得退到 8 米才装得下
+    - {t: 0.0, loc: [0.0, -8.4, 2.2], rot: [86.0, 0.0, 0.0]}
+    - {t: 6.0, loc: [0.0, -7.0, 2.4], rot: [86.0, 0.0, 0.0]}
+
+subjects:
+  # 七个葫芦，红橙黄绿青蓝紫。逐个长出来，间隔 0.5 秒，匀速。
+  - name: hulu1
+    proxy: {kind: gourd, color: [0.78, 0.14, 0.12]}
+    keys:
+      - {t: 0.0, loc: [-1.8, 0.0, 1.4], scale: [0.01, 0.01, 0.01]}
+      - {t: 1.2, loc: [-1.8, 0.0, 1.4], scale: [1.0, 1.0, 1.0]}
+  - name: hulu2
+    proxy: {kind: gourd, color: [0.88, 0.48, 0.08]}
+    keys:
+      - {t: 0.5, loc: [-1.2, 0.0, 1.6], scale: [0.01, 0.01, 0.01]}
+      - {t: 1.7, loc: [-1.2, 0.0, 1.6], scale: [1.0, 1.0, 1.0]}
+  - name: hulu3
+    proxy: {kind: gourd, color: [0.92, 0.82, 0.10]}
+    keys:
+      - {t: 1.0, loc: [-0.6, 0.0, 1.4], scale: [0.01, 0.01, 0.01]}
+      - {t: 2.2, loc: [-0.6, 0.0, 1.4], scale: [1.0, 1.0, 1.0]}
+  - name: hulu4
+    proxy: {kind: gourd, color: [0.20, 0.62, 0.22]}
+    keys:
+      - {t: 1.5, loc: [0.0, 0.0, 1.7], scale: [0.01, 0.01, 0.01]}
+      - {t: 2.7, loc: [0.0, 0.0, 1.7], scale: [1.0, 1.0, 1.0]}
+  - name: hulu5
+    proxy: {kind: gourd, color: [0.16, 0.66, 0.62]}
+    keys:
+      - {t: 2.0, loc: [0.6, 0.0, 1.4], scale: [0.01, 0.01, 0.01]}
+      - {t: 3.2, loc: [0.6, 0.0, 1.4], scale: [1.0, 1.0, 1.0]}
+  - name: hulu6
+    proxy: {kind: gourd, color: [0.14, 0.32, 0.78]}
+    keys:
+      - {t: 2.5, loc: [1.2, 0.0, 1.6], scale: [0.01, 0.01, 0.01]}
+      - {t: 3.7, loc: [1.2, 0.0, 1.6], scale: [1.0, 1.0, 1.0]}
+  - name: hulu7
+    proxy: {kind: gourd, color: [0.52, 0.18, 0.68]}
+    keys:
+      - {t: 3.0, loc: [1.8, 0.0, 1.4], scale: [0.01, 0.01, 0.01]}
+      - {t: 4.2, loc: [1.8, 0.0, 1.4], scale: [1.0, 1.0, 1.0]}
+
+  - name: yeye
+    asset: characters/yeye.blend
+    proxy: {kind: humanoid, height: 1.62, color: [0.62, 0.48, 0.36]}
+    keys:
+      - {t: 0.0, loc: [-3.0, -0.8, 0.0], rot: [0.0, 0.0, -25.0]}
+      - {t: 6.0, loc: [-2.6, -0.8, 0.0], rot: [0.0, 0.0, -25.0]}
+
+dialogue:
+  - {t: 4.4, who: yeye, line: "一共七个。", dur: 1.2}
+
+notes: |
+  葫芦是两个球摞起来的。段数 8，有棱，不磨。
+  长大的动作是纯缩放，没有形变，没有藤的次级运动。

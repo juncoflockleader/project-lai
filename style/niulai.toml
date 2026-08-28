@@ -1,0 +1,70 @@
+# 牛来 画质规格 v0.1
+#
+# 这份文件是「关掉什么」的清单，不是「打开什么」的清单。
+# 每一条都对应 docs/NIULAI_LOOK.md 里的一条观察，改之前先看那份文档。
+# pipeline/degrade.py 消费本文件。
+
+[meta]
+name = "niulai"
+version = "0.1"
+reference = "《牛来》(2026)，信雨萌 / 孙丽芳，SketchUp 手工关键帧"
+
+[timing]
+fps = 24
+# 每 step 帧才更新一次姿态 -> 有效帧率 fps/step。牛来 目测在 8~12 之间。
+step = 2
+
+[render]
+# EEVEE：快，且天生没有 GI，正好。
+engine = "BLENDER_EEVEE_NEXT"
+samples = 1                  # TAA 采样 1 次 = 基本没有抗锯齿
+resolution = [1280, 720]
+resolution_percentage = 100
+filter_size = 0.01           # Blender 允许的最小值，进一步压掉边缘柔化
+use_motion_blur = false
+use_denoise = false
+view_transform = "Standard"  # 不要 AgX / Filmic，要生的
+look = "None"
+film_transparent = false
+use_bloom = false
+use_ssr = false
+use_ao = false
+
+[light]
+# 一个太阳，没有补光，没有反弹。阴影硬得像贴纸。
+sun_energy = 3.0
+sun_rotation_deg = [50.0, 0.0, 30.0]
+sun_angle_deg = 0.0          # 0 = 绝对硬边阴影
+world_color = [0.52, 0.62, 0.75]
+world_strength = 0.6
+max_bounces = 0
+
+[shading]
+force_flat_shading = true    # 全部 shade flat，露出面
+roughness = 1.0              # 全哑光
+specular = 0.0               # 没有高光
+metallic = 0.0
+strip_normal_maps = true
+strip_subdivision = true
+decimate_ratio = 0.35        # 建模太干净的话，砍面
+min_faces_to_decimate = 500
+
+[motion]
+interpolation = "LINEAR"     # 没有缓入缓出，匀速起匀速停
+strip_easing = true
+foot_lock = false            # 不做 IK，脚就是要滑
+lipsync = "flap"             # 嘴只开合，不对口型
+lipsync_hz = 6.0
+
+[camera]
+use_dof = false
+shake = 0.0
+# 只允许这三种运镜。手持、环绕、变焦一律不批。
+allowed_moves = ["static", "linear_dolly", "linear_pan"]
+
+[audio]
+# 音频不在 Blender 里做，这里只记规格，pipeline/assemble.py 用。
+sample_rate = 44100
+codec = "aac"
+bitrate = "128k"
+normalize = false            # 不做响度归一，忽大忽小是特征

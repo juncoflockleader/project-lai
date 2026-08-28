@@ -1,0 +1,45 @@
+id: sh010
+episode: ep01
+title: 山中，老汉锄地，穿山甲来了
+duration: 4.0
+
+camera:
+  lens: 35
+  keys:
+    # 只准直线推。运镜规格见 style/niulai.toml 的 [camera].allowed_moves
+    - {t: 0.0, loc: [0.0, -9.0, 2.6], rot: [84.0, 0.0, 0.0]}
+    - {t: 4.0, loc: [0.0, -7.2, 2.4], rot: [84.0, 0.0, 0.0]}
+
+subjects:
+  - name: yeye
+    asset: characters/yeye.blend
+    proxy: {kind: humanoid, height: 1.62, color: [0.62, 0.48, 0.36]}
+    keys:
+      - {t: 0.0, loc: [-1.6, 0.0, 0.0], rot: [0.0, 0.0, 18.0]}
+      - {t: 2.0, loc: [-0.9, 0.2, 0.0], rot: [0.0, 0.0, 6.0]}
+      - {t: 4.0, loc: [-0.4, 0.2, 0.0], rot: [0.0, 0.0, 0.0]}
+
+  - name: chuanshanjia
+    proxy: {kind: rock, scale: 0.55, color: [0.48, 0.36, 0.22]}
+    keys:
+      # 脚会滑。不做 IK，见 [motion].foot_lock = false
+      - {t: 0.0, loc: [3.2, 1.0, 0.0]}
+      - {t: 4.0, loc: [0.9, 0.3, 0.0]}
+
+  - name: shu1
+    proxy: {kind: tree, height: 3.4}
+    keys:
+      - {t: 0.0, loc: [-4.5, 3.0, 0.0]}
+
+  - name: shu2
+    proxy: {kind: tree, height: 2.6, color: [0.26, 0.40, 0.16]}
+    keys:
+      - {t: 0.0, loc: [4.8, 4.2, 0.0]}
+
+dialogue:
+  - {t: 0.6, who: yeye, line: "这个山，要塌。", dur: 1.4}
+  - {t: 2.4, who: chuanshanjia, line: "塌不了。", dur: 1.0}
+
+notes: |
+  节拍取自原集开场。镜头是静推，没有摇，没有手持。
+  yeye 的资产还没建，先用积木代理。代理和成品在这套画质规格下差别不大。
