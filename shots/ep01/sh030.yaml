@@ -61,6 +61,12 @@ subjects:
         hair: elder          # 白头发 + 两边各一撮，不对称
         beard: long          # 爷爷的招牌
         hair_color: [0.93, 0.93, 0.91]
+      clothes:
+        robe: [0.44, 0.50, 0.56]     # 青灰袍子
+        sash: [0.34, 0.25, 0.17]     # 褐腰带
+        length: long                  # 盖到小腿，露脚踝
+        sleeves: true
+        collar: true
     keys:
       - {t: 0.0, loc: [-3.0, -0.8, 0.0], rot: [0.0, 0.0, -25.0]}
       - {t: 6.0, loc: [-2.6, -0.8, 0.0], rot: [0.0, 0.0, -25.0]}

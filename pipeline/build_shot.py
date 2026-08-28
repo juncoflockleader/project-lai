@@ -198,6 +198,69 @@ def _build_face(name: str, face: dict, head_z: float, unit: float,
     return parts
 
 
+def _build_clothes(name: str, clothes: dict, height: float, unit: float
+                   ) -> list[bpy.types.Object]:
+    """给身子穿衣服。
+
+    同第 0 条：**不是把躯干换个颜色**，那还是极简。衣服得是几件分开的、
+    看得出粘上去的东西 —— 袍子、袖子、腰带、对襟领口，各是各的几何体，
+    边缘不缝合，腰带还歪着。
+
+    袍子盖住躯干和大腿，小腿露在外面。胡子挂在袍子前面，别被袍子吃掉。
+    """
+    robe_color = tuple(clothes.get("robe", [0.44, 0.50, 0.56]))
+    sash_color = tuple(clothes.get("sash", [0.34, 0.25, 0.17]))
+    robe_mat = _material(f"{name}_pao", robe_color)
+    sash_mat = _material(f"{name}_yaodai", sash_color)
+
+    long_robe = clothes.get("length", "long") == "long"
+    shoulder_z = height - unit * 1.55
+    hem_z = unit * 1.45 if long_robe else unit * 3.6
+    body_z = (shoulder_z + hem_z) / 2.0
+    body_h = shoulder_z - hem_z
+
+    # 领口用袍子的暗色调，不用腰带色 —— 用褐色会读成两根獠牙
+    collar_color = tuple(c * 0.72 for c in robe_color)
+    collar_mat = _material(f"{name}_ling", collar_color)
+
+    robe_w = unit * 2.35
+    robe_d = unit * 1.45
+
+    parts = [
+        _box(f"{name}_pao", (robe_w, robe_d, body_h), (0.0, 0.0, body_z), robe_mat),
+        # 下摆比袍身宽一圈，是单独一块，接缝看得见
+        _box(f"{name}_xiabai", (robe_w * 1.12, robe_d * 1.1, unit * 0.42),
+             (0.0, 0.0, hem_z + unit * 0.16), robe_mat),
+    ]
+
+    if clothes.get("sleeves", True):
+        # 袖子套在胳膊上，比胳膊粗一圈，左右不一样长
+        # 袖顶必须顶到肩线上，否则肩膀那儿留一道缝，整个人成了稻草人
+        for side, sx, sl in (("L", -1.0, 2.05), ("R", 1.0, 1.8)):
+            parts.append(_box(
+                f"{name}_xiu{side}", (unit * 0.8, unit * 0.8, unit * sl),
+                (sx * unit * 1.42, 0.0, shoulder_z - unit * sl * 0.5), robe_mat))
+
+    if clothes.get("sash", True) is not False:
+        # 腰带。歪三度，是故意的。
+        sash = _box(f"{name}_yaodai", (robe_w * 1.06, robe_d * 1.06, unit * 0.36),
+                    (0.0, 0.0, shoulder_z - body_h * 0.46), sash_mat)
+        sash.rotation_euler = (0.0, math.radians(3.0), 0.0)
+        parts.append(sash)
+
+    if clothes.get("collar", True):
+        # 对襟：两条斜着的窄块，在胸口交叉成一个 V，不完全对称
+        for side, sx, tilt, ln in (("L", -1.0, 17.0, 1.05), ("R", 1.0, -14.0, 0.95)):
+            collar = _box(f"{name}_ling{side}",
+                          (unit * 0.2, unit * 0.13, unit * ln),
+                          (sx * unit * 0.26, -robe_d * 0.52,
+                           shoulder_z - unit * ln * 0.42), collar_mat)
+            collar.rotation_euler = (0.0, math.radians(tilt), 0.0)
+            parts.append(collar)
+
+    return parts
+
+
 def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
     """一个人。身子四肢是方块，头可以是方块，也可以带脸。
 
@@ -217,6 +280,10 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
         _box(f"{name}_zuoshou", (unit * 0.6, unit * 0.6, unit * 2.6), (-unit * 1.5, 0, height - unit * 3.4), skin),
         _box(f"{name}_youshou", (unit * 0.6, unit * 0.6, unit * 2.6), (unit * 1.5, 0, height - unit * 3.4), skin),
     ]
+
+    clothes = spec.get("clothes") or {}
+    if clothes:
+        parts += _build_clothes(name, clothes, height, unit)
 
     if face:
         # 有脸的头是低段数的球：有弧度，但段数低到能看见棱。
