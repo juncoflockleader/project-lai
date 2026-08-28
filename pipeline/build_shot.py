@@ -83,6 +83,38 @@ def _join(objs: list[bpy.types.Object], name: str) -> bpy.types.Object:
     return joined
 
 
+def _apply_scale(obj: bpy.types.Object) -> bpy.types.Object:
+    """把物体级缩放烘进网格，让 obj.scale 回到 (1,1,1)。
+
+    `_box()` 是靠设 `obj.scale` 定尺寸的，join 之后这个缩放留在合并出来的物体上
+    （娃是 (0.316, 0.172, 0.46)）。物体自己渲出来没问题，网格已经除过了，
+    **但任何 parent 到它身上的东西都会被这一层缩放压扁** ——
+    喷火喷水就是这么从嘴上掉到胯上、还缩成一个点的：局部 z=0.95 × 0.46 = 0.437。
+
+    所以代理建完一律把缩放烘掉。以后再往角色上挂任何东西都不用再想这件事。
+    """
+    for other in bpy.context.selected_objects:
+        other.select_set(False)
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    obj.select_set(False)
+    return obj
+
+
+def _origin_to(obj: bpy.types.Object, point: tuple) -> bpy.types.Object:
+    """把原点挪到指定点。喷的东西要从嘴那儿缩放长出来，原点就得在嘴上。"""
+    bpy.context.scene.cursor.location = point
+    for other in bpy.context.selected_objects:
+        other.select_set(False)
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
+    obj.select_set(False)
+    bpy.context.scene.cursor.location = (0.0, 0.0, 0.0)
+    return obj
+
+
 def _origin_to_base(obj: bpy.types.Object) -> bpy.types.Object:
     """把原点挪到世界原点，即角色脚底。
 
@@ -555,8 +587,9 @@ def build_subject(subject: Subject) -> bpy.types.Object:
 
     kind = subject.proxy.get("kind", "box")
     builder = PROXY_BUILDERS.get(kind, _proxy_box)
-    # 只对代理做原点归零；链进来的资产按作者摆的原点走
-    return _origin_to_base(builder(subject.name, subject.proxy))
+    # 只对代理做原点归零；链进来的资产按作者摆的原点走。
+    # 先烘缩放再挪原点 —— 顺序反了原点会算在旧的缩放空间里。
+    return _origin_to_base(_apply_scale(builder(subject.name, subject.proxy)))
 
 
 # --------------------------------------------------------------------------
@@ -635,6 +668,80 @@ def apply_lipsync(objs: dict[str, bpy.types.Object], shot: Shot, style: dict, fp
 # 入口
 # --------------------------------------------------------------------------
 
+SPRAY_COLORS = {
+    "fire": ((0.97, 0.55, 0.10), (0.95, 0.26, 0.06), (0.99, 0.83, 0.22)),
+    "water": ((0.35, 0.66, 0.94), (0.62, 0.84, 0.97), (0.20, 0.46, 0.86)),
+}
+
+
+def apply_spray(name: str, obj: bpy.types.Object, spray: dict,
+                height: float, unit: float, fps: int) -> int:
+    """喷火 / 喷水。
+
+    科长说能糊弄就糊弄，难道真的要做特效吗。对 —— 在这套规格里做流体模拟
+    才是错的：牛来 没有粒子、没有体积、没有透明。一个六棱锥当水柱火柱，
+    一个低段数球当头上那团，平涂两个色，缩放动画开关，喷的时候再让颜色抖两下。
+
+    这东西是**独立物体**，不并进角色 —— 并进去就没法单独做缩放动画了。
+    用 parent 挂在角色身上跟着走。它的面数也不算在角色头上。
+
+    **方向不能照着脸直喷。** 角色正对镜头时，朝 -Y 喷就是冲着摄影机喷，
+    整条被透视压成一个点，等于没喷。所以默认往侧前方偏 yaw 度、抬 pitch 度。
+    """
+    kind = spray.get("kind", "fire")
+    times = spray.get("at") or []
+    duration = float(spray.get("dur", 0.9))
+    if not times:
+        return 0
+
+    jet_c, ball_c, flick_c = SPRAY_COLORS.get(kind, SPRAY_COLORS["fire"])
+    jet_mat = _material(f"{name}_pen", jet_c)
+    ball_mat = _material(f"{name}_penqiu", ball_c)
+
+    # 嘴的位置：照默认头型算（head_z / b / c 跟 _proxy_humanoid 里一致）
+    head_z = height - unit * 0.95
+    head_r = unit * 0.92
+    mouth = (0.0, -head_r * 0.9 * 0.85, head_z - head_r * 1.14 * 0.42)
+
+    depth = unit * 5.0
+    jet = _cone(f"{name}_penzhu", r_top=unit * 0.78, r_bottom=unit * 0.16,
+                depth=depth, loc=(mouth[0], mouth[1], mouth[2] + depth * 0.5),
+                material=jet_mat, vertices=6)
+    # 绕 X 转 90 度，让锥子的长轴指向 -Y，也就是脸朝的方向
+    # 先不转，等 join 完、原点挪到嘴上之后，整体转 —— 这样转的是绕嘴转
+
+    ball = _sphere(f"{name}_penqiu", unit * 0.9,
+                   (mouth[0], mouth[1], mouth[2] + depth + unit * 0.45),
+                   ball_mat, segments=6)
+
+    spray_obj = _join([jet, ball], f"{name}_pen")
+    _origin_to(spray_obj, mouth)
+    # pitch 绕 X：90 度是正前方（-Y），小于 90 就往上抬
+    # yaw 绕 Z：往左右侧让开，别对着镜头喷
+    spray_obj.rotation_euler = (
+        math.radians(float(spray.get("pitch", 78.0))),
+        0.0,
+        math.radians(float(spray.get("yaw", 62.0))),
+    )
+    spray_obj.parent = obj          # 角色建好时在原点，所以父子变换直接对得上
+
+    for t in times:
+        f0, f1 = round(t * fps), round((t + duration) * fps)
+        for frame, sc in ((max(0, f0 - 1), 0.001), (f0 + 1, 1.0),
+                          (max(f0 + 2, f1 - 1), 1.0), (f1 + 1, 0.001)):
+            spray_obj.scale = (sc, sc, sc)
+            spray_obj.keyframe_insert("scale", frame=frame)
+
+        # 喷的时候颜色抖两下，免费
+        socket = jet_mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"]
+        for frame, col in ((f0 + 1, (*jet_c, 1.0)), (f0 + 5, (*flick_c, 1.0)),
+                           (f0 + 9, (*jet_c, 1.0)), (f1, (*flick_c, 1.0))):
+            socket.default_value = col
+            socket.keyframe_insert("default_value", frame=frame)
+
+    return len(times)
+
+
 def apply_flash(name: str, times: list, fps: int) -> int:
     """眼睛闪烁。动的是眼珠材质的颜色，一个面都不加。
 
@@ -680,12 +787,17 @@ def build(shot: Shot, style: dict) -> dict:
     objs: dict[str, bpy.types.Object] = {}
     proxied: list[str] = []
     flashed = 0
+    sprayed = 0
     for subject in shot.subjects:
         obj = build_subject(subject)
         objs[subject.name] = obj
         apply_keys(obj, subject.keys, fps)
         if subject.flash:
             flashed += apply_flash(subject.name, subject.flash, fps)
+        if subject.spray:
+            sprayed += apply_spray(subject.name, obj, subject.spray,
+                                   float(subject.proxy.get("height", 1.7)),
+                                   float(subject.proxy.get("height", 1.7)) / 8.0, fps)
         if not subject.has_asset():
             proxied.append(subject.name)
 
@@ -698,4 +810,5 @@ def build(shot: Shot, style: dict) -> dict:
         "proxied": proxied,
         "lipsync": flapped,
         "flash": flashed,
+        "spray": sprayed,
     }

@@ -94,4 +94,16 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Blender 后台模式下，脚本抛异常它照样返回 0 —— make 会以为渲染成功，
+    # 接着跑 assemble，拿上一轮的旧帧拼出一个 mp4 来，日志里有「写好了」
+    # 没有「渲完了」，不细看就当成功了。实测：未捕获异常退出码 0，
+    # sys.exit(n) 退出码 n。所以这里必须自己兜住并显式退非零。
+    try:
+        sys.exit(main())
+    except SystemExit:
+        raise
+    except BaseException as exc:
+        import traceback
+        traceback.print_exc()
+        print(f"[lai] 渲染失败：{type(exc).__name__}: {exc}")
+        sys.exit(1)

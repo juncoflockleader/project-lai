@@ -32,6 +32,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_STYLE = os.path.join(REPO_ROOT, "style", "niulai.toml")
 
 VALID_PROXY_KINDS = {"humanoid", "gourd", "rock", "tree", "snake", "box"}
+VALID_SPRAY_KINDS = {"fire", "water"}
 
 
 class SpecError(Exception):
@@ -58,6 +59,8 @@ class Subject:
     keys: list[Key] = field(default_factory=list)
     # 眼睛闪烁的时刻（秒）。千里眼用，见 build_shot.apply_flash()
     flash: list[float] = field(default_factory=list)
+    # 喷火/喷水。{kind: fire|water, at: [秒...], dur: 秒}，见 build_shot.apply_spray()
+    spray: dict[str, Any] = field(default_factory=dict)
 
     def asset_path(self, root: str = REPO_ROOT) -> str | None:
         if not self.asset:
@@ -242,6 +245,24 @@ def load_shot(path: str) -> Shot:
         if flash and not (s_raw.get("proxy") or {}).get("face", {}).get("eyes", False):
             raise SpecError(f"{where}.flash: 要闪眼睛，proxy.face.eyes 得是 true")
 
+        spray = s_raw.get("spray") or {}
+        if spray:
+            if not isinstance(spray, dict):
+                raise SpecError(f"{where}.spray: 要一个 mapping，拿到 {spray!r}")
+            if spray.get("kind") not in VALID_SPRAY_KINDS:
+                raise SpecError(
+                    f"{where}.spray.kind: 只能是 {sorted(VALID_SPRAY_KINDS)}，"
+                    f"拿到 {spray.get('kind')!r}")
+            spray_at = spray.get("at") or []
+            if not spray_at:
+                raise SpecError(f"{where}.spray.at: 至少要一个时刻")
+            spray_dur = float(spray.get("dur", 0.9))
+            for j, st in enumerate(spray_at):
+                stv = float(st)
+                if stv < 0 or stv + spray_dur > duration + 1e-6:
+                    raise SpecError(
+                        f"{where}.spray.at[{j}]: {stv}+{spray_dur} 超出镜头时长 {duration}")
+
         subject = Subject(
             name=str(s_raw["name"]),
             asset=s_raw.get("asset"),
@@ -251,6 +272,7 @@ def load_shot(path: str) -> Shot:
                 for j, k in enumerate(s_raw.get("keys", []))
             ],
             flash=flash,
+            spray=spray,
         )
         _check_keys(subject.keys, duration, f"{where}.keys")
         subjects.append(subject)
@@ -341,6 +363,7 @@ def shot_to_dict(shot: Shot) -> dict[str, Any]:
                 "proxy": s.proxy,
                 "keys": [_key_to_dict(k) for k in s.keys],
                 "flash": s.flash,
+                "spray": s.spray,
             }
             for s in shot.subjects
         ],
@@ -381,6 +404,7 @@ def shot_from_dict(raw: dict[str, Any]) -> Shot:
                 proxy=s.get("proxy") or {},
                 keys=keys(s.get("keys", [])),
                 flash=[float(f) for f in s.get("flash", [])],
+                spray=s.get("spray") or {},
             )
             for s in raw.get("subjects", [])
         ],
