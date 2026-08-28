@@ -1,0 +1,76 @@
+id: sh060
+episode: ep01
+title: 大娃变大，七娃收妖
+duration: 6.0
+
+camera:
+  lens: 35
+  keys:
+    # 大娃要涨到 2.2 倍（约 2.5 米），镜头得留出头顶
+    - {t: 0.0, loc: [0.0, -7.6, 1.40], rot: [88.0, 0.0, 0.0]}
+    - {t: 6.0, loc: [0.0, -6.9, 1.48], rot: [88.0, 0.0, 0.0]}
+
+subjects:
+  # 大娃：力大无穷 = 变大
+  - name: wa1
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.78, 0.14, 0.12], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.78, 0.14, 0.12]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [-2.10, 0.0, 0.0]}
+      - {t: 6.0, loc: [-2.10, 0.0, 0.0]}
+    grow: {at: [1.0], dur: 2.0, scale: 2.2}
+
+  # 蛇精：被收进葫芦
+  - name: shejing
+    proxy:
+      kind: humanoid
+      height: 1.72
+      color: [0.70, 0.74, 0.58]
+      lower: tail
+      lower_color: [0.26, 0.46, 0.30]
+      face:
+        eyes: true
+        pupil: slit
+        brows: true
+        nose: true
+        chin: pointed
+        hair: hood
+        fangs: true
+        hair_color: [0.17, 0.31, 0.21]
+      clothes: {robe: [0.23, 0.40, 0.27], sash: [0.11, 0.19, 0.13], length: short}
+    keys:
+      - {t: 0.0, loc: [0.30, 0.2, 0.0], rot: [0.0, 0.0, -12.0]}
+      - {t: 3.2, loc: [0.10, 0.2, 0.0], rot: [0.0, 0.0, -4.0]}
+      - {t: 6.0, loc: [0.10, 0.2, 0.0], rot: [0.0, 0.0, -4.0]}
+    # 收妖：变大的反面 —— 缩小，同时平移进七娃的葫芦
+    capture: {at: 3.2, dur: 1.4, into: wa7}
+
+  # 七娃：拿宝葫芦
+  - name: wa7
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.52, 0.18, 0.68], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.52, 0.18, 0.68]
+      hat_scale: 0.24
+      hold: gourd
+      hold_scale: 0.30
+      hold_color: [0.90, 0.72, 0.16]
+    keys:
+      - {t: 0.0, loc: [2.25, 0.0, 0.0]}
+      - {t: 6.0, loc: [2.15, 0.0, 0.0]}
+
+notes: |
+  大娃力大无穷做成变大，2.2 倍，匀速涨匀速回。
+  收妖是变大的反面：蛇精缩到 0，同时平移到七娃手里葫芦的位置。
+  顺风耳做不出来，不做。

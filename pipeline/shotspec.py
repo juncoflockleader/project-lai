@@ -65,6 +65,10 @@ class Subject:
     tint: dict[str, Any] = field(default_factory=dict)
     # 隐身。{at: [秒...], dur}。人缩没 + 星星闪。六娃用
     vanish: dict[str, Any] = field(default_factory=dict)
+    # 变大。{at: [秒...], dur, scale}。大娃用
+    grow: dict[str, Any] = field(default_factory=dict)
+    # 收妖。{at: 秒, dur, into: 角色名} 或 {to: [x,y,z]}。变大的反面
+    capture: dict[str, Any] = field(default_factory=dict)
 
     def asset_path(self, root: str = REPO_ROOT) -> str | None:
         if not self.asset:
@@ -279,6 +283,8 @@ def load_shot(path: str) -> Shot:
             spray=spray,
             tint=s_raw.get("tint") or {},
             vanish=s_raw.get("vanish") or {},
+            grow=s_raw.get("grow") or {},
+            capture=s_raw.get("capture") or {},
         )
         _check_keys(subject.keys, duration, f"{where}.keys")
         subjects.append(subject)
@@ -372,6 +378,8 @@ def shot_to_dict(shot: Shot) -> dict[str, Any]:
                 "spray": s.spray,
                 "tint": s.tint,
                 "vanish": s.vanish,
+                "grow": s.grow,
+                "capture": s.capture,
             }
             for s in shot.subjects
         ],
@@ -415,6 +423,8 @@ def shot_from_dict(raw: dict[str, Any]) -> Shot:
                 spray=s.get("spray") or {},
                 tint=s.get("tint") or {},
                 vanish=s.get("vanish") or {},
+                grow=s.get("grow") or {},
+                capture=s.get("capture") or {},
             )
             for s in raw.get("subjects", [])
         ],

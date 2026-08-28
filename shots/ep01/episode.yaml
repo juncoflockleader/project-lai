@@ -24,5 +24,8 @@ beats:
   - id: b5
     name: 蛤蟆精、蜈蚣精、马蜂精
     shots: [sh050]
+  - id: b6
+    name: 大娃变大，七娃收妖
+    shots: [sh060]
 
 status: 骨架。三个镜头是流水线样例，不是最终分镜。

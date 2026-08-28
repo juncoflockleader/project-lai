@@ -829,6 +829,78 @@ def apply_spray(name: str, obj: bpy.types.Object, spray: dict,
     return len(times)
 
 
+def _loc_at(keys: list, t: float) -> tuple:
+    """按关键帧线性插值求 t 时刻的位置。收妖要知道妖怪当时站在哪。"""
+    pts = [(k.t, k.loc) for k in keys if k.loc is not None]
+    if not pts:
+        return (0.0, 0.0, 0.0)
+    if t <= pts[0][0]:
+        return pts[0][1]
+    if t >= pts[-1][0]:
+        return pts[-1][1]
+    for (t0, l0), (t1, l1) in zip(pts, pts[1:]):
+        if t0 <= t <= t1:
+            f = 0.0 if t1 == t0 else (t - t0) / (t1 - t0)
+            return tuple(a + (b - a) * f for a, b in zip(l0, l1))
+    return pts[-1][1]
+
+
+def gourd_anchor(subject) -> tuple:
+    """某个角色手里那个葫芦的位置（相对角色原点）。收妖往这儿收。
+
+    和 _proxy_humanoid 里 `hold: gourd` 的摆放保持一致，改那边这边要跟着改。
+    """
+    height = float(subject.proxy.get("height", 1.7))
+    unit = height / 8.0
+    return (0.0, -unit * 1.15, height - unit * 4.1)
+
+
+def apply_grow(name: str, obj: bpy.types.Object, grow: dict, fps: int) -> int:
+    """大娃力大无穷：就是变大。涨上去，待一会儿，再回来。
+
+    角色的 scale 建完已经烘成 (1,1,1)，所以这里直接写倍数就行。
+    """
+    times = grow.get("at") or []
+    duration = float(grow.get("dur", 1.4))
+    big = float(grow.get("scale", 2.2))
+    for t in times:
+        f0, f1 = round(t * fps), round((t + duration) * fps)
+        for frame, sc in ((max(0, f0 - 1), 1.0), (f0 + 2, big),
+                          (max(f0 + 3, f1 - 2), big), (f1 + 1, 1.0)):
+            obj.scale = (sc, sc, sc)
+            obj.keyframe_insert("scale", frame=frame)
+    return len(times)
+
+
+def apply_capture(name: str, obj: bpy.types.Object, subject,
+                  target: tuple, fps: int) -> int:
+    """收妖：变大的反面 —— 缩小，同时平移进葫芦里。
+
+    位移关键帧是叠加在 apply_keys 已经打好的那条曲线上的，
+    起点取妖怪在收妖时刻的插值位置，终点是葫芦。
+    """
+    capture = subject.capture
+    t = float(capture.get("at", 0.0))
+    duration = float(capture.get("dur", 1.2))
+    f0, f1 = round(t * fps), round((t + duration) * fps)
+
+    start = _loc_at(subject.keys, t)
+
+    obj.location = start
+    obj.keyframe_insert("location", frame=f0)
+    obj.scale = (1.0, 1.0, 1.0)
+    obj.keyframe_insert("scale", frame=f0)
+
+    obj.location = target
+    obj.keyframe_insert("location", frame=f1)
+    obj.scale = (0.001, 0.001, 0.001)
+    obj.keyframe_insert("scale", frame=f1)
+
+    # 收进去之后就别再冒出来了
+    obj.keyframe_insert("scale", frame=f1 + 2)
+    return 1
+
+
 def apply_tint(name: str, tint: dict, fps: int) -> int:
     """三娃铜头铁臂：到点了把皮肤材质染成铜色，过一会儿再染回来。
 
@@ -955,12 +1027,16 @@ def build(shot: Shot, style: dict) -> dict:
     sprayed = 0
     tinted = 0
     vanished = 0
+    grown = 0
+    captured = 0
     for subject in shot.subjects:
         obj = build_subject(subject)
         objs[subject.name] = obj
         apply_keys(obj, subject.keys, fps)
         if subject.flash:
             flashed += apply_flash(subject.name, subject.flash, fps)
+        if subject.grow:
+            grown += apply_grow(subject.name, obj, subject.grow, fps)
         if subject.tint:
             tinted += apply_tint(subject.name, subject.tint, fps)
         if subject.vanish:
@@ -975,6 +1051,25 @@ def build(shot: Shot, style: dict) -> dict:
         if not subject.has_asset():
             proxied.append(subject.name)
 
+    # 第二遍：收妖要用到别的角色的位置，等所有人都建完再做
+    by_name = {s.name: s for s in shot.subjects}
+    for subject in shot.subjects:
+        if not subject.capture:
+            continue
+        cap = subject.capture
+        if cap.get("to"):
+            target = tuple(cap["to"])
+        else:
+            host = by_name.get(cap.get("into", ""))
+            if host is None:
+                continue
+            end_t = float(cap.get("at", 0.0)) + float(cap.get("dur", 1.2))
+            hx, hy, hz = _loc_at(host.keys, end_t)
+            ax, ay, az = gourd_anchor(host)
+            target = (hx + ax, hy + ay, hz + az)
+        captured += apply_capture(subject.name, objs[subject.name], subject,
+                                  target, fps)
+
     build_camera(shot, fps)
     flapped = apply_lipsync(objs, shot, style, fps)
 
@@ -987,4 +1082,6 @@ def build(shot: Shot, style: dict) -> dict:
         "spray": sprayed,
         "tint": tinted,
         "vanish": vanished,
+        "grow": grown,
+        "capture": captured,
     }
