@@ -1,0 +1,13 @@
+id: pantilt
+episode: test
+title: 复合摇
+duration: 4.0
+camera:
+  lens: 35
+  keys:
+    - {t: 0.0, loc: [0.0, -8.0, 2.0], rot: [80.0, 0.0, -20.0]}
+    - {t: 4.0, loc: [0.0, -8.0, 2.0], rot: [92.0, 0.0, 20.0]}
+subjects:
+  - name: a
+    proxy: {kind: box, size: [1,1,1]}
+    keys: [{t: 0.0, loc: [0,0,0]}]

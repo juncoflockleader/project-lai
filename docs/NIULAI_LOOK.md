@@ -148,7 +148,15 @@ Blender 默认的 AgX / Filmic 会把高光滚下来，看着就「像电影」�
 ### 14. 只有静止、直线推、直线摇
 没有手持，没有环绕，没有变焦，没有跟随。
 → `[camera].allowed_moves = ["static", "linear_dolly", "linear_pan"]`。
-这条目前靠人守，校验器还没检查（见 `docs/ROADMAP.md`）。
+
+**这条是可执行的**，`make validate` 会判：路径是不是直线、推的时候转没转、
+转的时候是不是只绕一个轴、有没有横滚。手持、环绕、跟拍、斜角、复合摇都会被拦下。
+变焦不用判 —— `lens` 是镜头级的标量，关键帧里放 `lens` 会被直接拒掉。
+
+「直线但不匀速」只提示不判死：手工片里「先停一下再推」是合理的。
+
+判定逻辑在 `pipeline/shotspec.py` 的 `classify_camera_move()`，
+反面例子在 `tests/badcam/`，`make test` 会验证该拦的确实拦得住。
 
 ### 15. 音频不做响度归一
 忽大忽小是特征。

@@ -1,0 +1,13 @@
+id: orbit
+episode: test
+title: 边推边转
+duration: 4.0
+camera:
+  lens: 35
+  keys:
+    - {t: 0.0, loc: [-3.0, -8.0, 2.0], rot: [86.0, 0.0, -18.0]}
+    - {t: 4.0, loc: [3.0, -8.0, 2.0], rot: [86.0, 0.0, 18.0]}
+subjects:
+  - name: a
+    proxy: {kind: box, size: [1,1,1]}
+    keys: [{t: 0.0, loc: [0,0,0]}]

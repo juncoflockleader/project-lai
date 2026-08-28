@@ -11,10 +11,11 @@ EP  := $(notdir $(patsubst %/,%,$(dir $(SHOT))))
 ID  := $(basename $(notdir $(SHOT)))
 OUT := out/$(EP)/$(ID)
 
-.PHONY: help validate compile render preview all clean deps
+.PHONY: help validate test compile render preview all clean deps
 
 help:
 	@echo "make validate                       校验全部分镜和画质规格（不需要 Blender）"
+	@echo "make test                           跑运镜校验的回归测试"
 	@echo "make render SHOT=shots/ep01/sh020.yaml   渲一个镜头，出帧序列 + mp4"
 	@echo "make preview SHOT=...               只搭场景不渲染，存一个 .blend 出来看"
 	@echo "make all                            渲 shots/ 下全部镜头"
@@ -28,6 +29,9 @@ deps:
 validate:
 	$(PY) -m pipeline.validate
 
+test:
+	$(PY) tests/test_camera_rules.py
+
 compile:
 	$(PY) -m pipeline.compile $(SHOT)
 
@@ -39,7 +43,7 @@ preview: compile
 	$(BLENDER) -b -P pipeline/render.py -- \
 		--plan out/$(EP)/$(ID).plan.json --dry-run --save-blend $(OUT).blend
 
-all: validate
+all: validate test
 	@for shot in $$(find shots -name 'sh*.yaml' | sort); do \
 		echo "==> $$shot"; \
 		$(MAKE) --no-print-directory render SHOT=$$shot || exit 1; \

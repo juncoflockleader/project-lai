@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import math
 import os
 from dataclasses import dataclass, field
 from typing import Any
@@ -446,3 +447,113 @@ def shot_from_dict(raw: dict[str, Any]) -> Shot:
         notes=raw.get("notes", ""),
         source_path=raw.get("source_path", ""),
     )
+
+
+# --------------------------------------------------------------------------
+# 运镜校验
+#
+# style/niulai.toml 的 [camera].allowed_moves 只准静止、直线推、直线摇。
+# 这一节把那条规格变成可执行的检查 —— 在此之前它只是一句写在文档里的话。
+#
+# 判的是四件事：路径是不是直线、推的时候转没转、转的时候是不是只绕一个轴、
+# 有没有横滚。手持、环绕、跟拍、斜角都会栽在这四条上。
+# 变焦不用判：lens 是镜头级的标量，关键帧里放 lens 会被 _parse_key 直接拒掉。
+# --------------------------------------------------------------------------
+
+EPS_POS = 1e-4      # 米，位置认定为「没动」的阈值
+EPS_ROT = 1e-3      # 度，角度认定为「没转」的阈值
+EPS_LINE = 0.02     # 米，偏离直线多远算曲线
+EPS_SPEED = 0.06    # 匀速的相对容差
+
+
+def _sub(a, b):
+    return tuple(x - y for x, y in zip(a, b))
+
+
+def _norm(v):
+    return math.sqrt(sum(x * x for x in v))
+
+
+def _cross(a, b):
+    return (a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0])
+
+
+def classify_camera_move(shot: Shot) -> tuple[str, list[str], list[str]]:
+    """判定镜头的运镜类型。
+
+    返回 (类型, 硬伤, 提示)。硬伤会让校验不过，提示只是读一眼。
+    """
+    keys = shot.camera.keys
+    problems: list[str] = []
+    notes: list[str] = []
+
+    locs = [k.loc for k in keys if k.loc is not None]
+    rots = [k.rot for k in keys if k.rot is not None]
+    times = [k.t for k in keys]
+
+    # 横滚（斜角）：rot 的 Y 分量对水平机位来说就是横滚轴
+    for i, r in enumerate(rots):
+        if abs(r[1]) > EPS_ROT:
+            problems.append(
+                f"camera.keys[{i}].rot 的 Y 分量是 {r[1]:g}，不是 0 —— 这是横滚/斜角")
+
+    moved = any(_norm(_sub(p, locs[0])) > EPS_POS for p in locs[1:]) if locs else False
+    turned = False
+    if rots:
+        for r in rots[1:]:
+            if abs(r[0] - rots[0][0]) > EPS_ROT or abs(r[2] - rots[0][2]) > EPS_ROT:
+                turned = True
+                break
+
+    if moved and turned:
+        problems.append(
+            "位置和角度同时在变 —— 这是跟拍或环绕，不在 allowed_moves 里。"
+            "要推就别转，要摇就别推")
+        return "combined", problems, notes
+
+    if not moved and not turned:
+        return "static", problems, notes
+
+    if moved:
+        # 路径必须是直线
+        span = _sub(locs[-1], locs[0])
+        span_len = _norm(span)
+        if span_len > EPS_POS:
+            for i, p in enumerate(locs[1:-1], start=1):
+                d = _sub(p, locs[0])
+                dist = _norm(_cross(d, span)) / span_len
+                if dist > EPS_LINE:
+                    problems.append(
+                        f"camera.keys[{i}] 偏离首尾连线 {dist:.3f} 米 —— 这是曲线运镜")
+            # 匀速只是提示，不算硬伤：「先停一下再推」在手工片里是合理的
+            t_span = times[-1] - times[0]
+            if t_span > 0 and len(locs) > 2:
+                for i, p in enumerate(locs[1:-1], start=1):
+                    want = (times[i] - times[0]) / t_span
+                    got = _norm(_sub(p, locs[0])) / span_len
+                    if abs(want - got) > EPS_SPEED:
+                        notes.append(
+                            f"camera.keys[{i}] 不是匀速（走了 {got:.2f}，时间过了 {want:.2f}）")
+        return "linear_dolly", problems, notes
+
+    # 只转不动：绕一个轴才算，绕两个轴是复合摇
+    d_pitch = max(abs(r[0] - rots[0][0]) for r in rots)
+    d_yaw = max(abs(r[2] - rots[0][2]) for r in rots)
+    if d_pitch > EPS_ROT and d_yaw > EPS_ROT:
+        problems.append(
+            f"俯仰和水平同时在转（{d_pitch:g}° / {d_yaw:g}°）—— 这是复合摇")
+        return "combined", problems, notes
+    return ("linear_tilt" if d_pitch > EPS_ROT else "linear_pan"), problems, notes
+
+
+def check_camera(shot: Shot, style: dict) -> tuple[str, list[str], list[str]]:
+    """判定运镜类型，并对照 [camera].allowed_moves。"""
+    kind, problems, notes = classify_camera_move(shot)
+    allowed = style.get("camera", {}).get("allowed_moves", [])
+    if allowed and kind not in allowed:
+        problems.append(
+            f"运镜是 {kind}，不在 [camera].allowed_moves {allowed} 里。"
+            f"要么改分镜，要么在 style/niulai.toml 里把它加进去")
+    return kind, problems, notes

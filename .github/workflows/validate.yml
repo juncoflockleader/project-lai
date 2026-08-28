@@ -17,3 +17,4 @@ jobs:
           python-version: "3.11"
       - run: pip install -r requirements.txt
       - run: python -m pipeline.validate
+      - run: python tests/test_camera_rules.py

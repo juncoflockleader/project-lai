@@ -149,10 +149,43 @@ notes: |
 
 校验器会逐条检查这些，报错带文件名和字段路径。
 
+## 运镜校验
+
+`style/niulai.toml` 的 `[camera].allowed_moves` 从「写在文档里的一句话」变成了
+可执行的检查。`make validate` 会给每个镜头判一个类型：
+
+| 类型 | 判定 |
+|---|---|
+| `static` | 位置和角度都不变 |
+| `linear_dolly` | 只动位置，且路径是直线 |
+| `linear_pan` | 只转水平角 |
+| `linear_tilt` | 只转俯仰角（**不在默认准用列表里**） |
+| `combined` | 位置和角度同时变，或俯仰和水平同时转 |
+
+四条硬伤会判死：路径是曲线、推的时候还转（跟拍/环绕）、俯仰和水平同时转
+（复合摇）、`rot` 的 Y 分量不为 0（横滚/斜角）。判出来的类型再对照
+`allowed_moves`，不在里面就报错，并提示要么改分镜、要么把它加进 toml。
+
+变焦不用判：`lens` 是镜头级的标量，关键帧里放 `lens` 会被 `_parse_key`
+以「不认识的字段」直接拒掉。
+
+「直线但不匀速」只出提示不判死 —— 手工片里「先停一下再推」是合理的。
+
+判定逻辑在 `pipeline/shotspec.py` 的 `classify_camera_move()` / `check_camera()`。
+
+### 校验器自己也要被校验
+
+`tests/badcam/` 下面是六个**故意写坏**的运镜，`make test` 断言该拦的拦得住、
+不该拦的不误伤，顺带断言正片七个镜头一个都不该被拦。
+
+一个只会说 OK 的校验器没有价值。加规则的时候先往 `tests/badcam/` 里放一个
+会触发它的反例，再去写判定。
+
 ## 常用命令
 
 ```bash
-make validate                              # 校验全部分镜，不需要 Blender
+make validate                              # 校验全部分镜和运镜，不需要 Blender
+make test                                  # 跑运镜校验的回归测试
 make render SHOT=shots/ep01/sh020.yaml     # 渲一个镜头
 make preview SHOT=shots/ep01/sh020.yaml    # 只搭场景，存 .blend 出来手动看
 make all                                   # 渲全部

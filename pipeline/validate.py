@@ -12,6 +12,7 @@ import sys
 from pipeline.shotspec import (
     REPO_ROOT,
     SpecError,
+    check_camera,
     find_shots,
     load_shot,
     load_style,
@@ -32,7 +33,9 @@ def main(argv: list[str]) -> int:
 
     fps = style["timing"]["fps"]
     step = style["timing"]["step"]
+    allowed = style.get("camera", {}).get("allowed_moves", [])
     print(f"画质规格 OK  fps={fps} step={step} 有效帧率={fps / step:g}")
+    print(f"准用的运镜：{', '.join(allowed) if allowed else '（没限制）'}")
     print()
 
     failures = 0
@@ -62,11 +65,20 @@ def main(argv: list[str]) -> int:
             elif not subject.asset:
                 proxied.append(subject.name)
 
+        kind, cam_problems, cam_notes = check_camera(shot, style)
+
         tail = f"  代理={','.join(proxied)}" if proxied else ""
+        status = "FAIL " if cam_problems else "OK   "
         print(
-            f"OK    {rel}  {shot.duration:g}s / {frames}帧  "
-            f"{len(shot.subjects)}个东西 {len(shot.dialogue)}句词{tail}"
+            f"{status} {rel}  {shot.duration:g}s / {frames}帧  "
+            f"{len(shot.subjects)}个东西 {len(shot.dialogue)}句词  运镜={kind}{tail}"
         )
+        for problem in cam_problems:
+            print(f"        运镜: {problem}")
+        for note in cam_notes:
+            print(f"        [提示] {note}")
+        if cam_problems:
+            failures += 1
 
     print()
     if missing_assets:

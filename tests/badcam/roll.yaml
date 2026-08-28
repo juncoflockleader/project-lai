@@ -1,0 +1,13 @@
+id: roll
+episode: test
+title: 斜角
+duration: 4.0
+camera:
+  lens: 35
+  keys:
+    - {t: 0.0, loc: [0.0, -8.0, 2.0], rot: [86.0, 12.0, 0.0]}
+    - {t: 4.0, loc: [0.0, -6.0, 2.0], rot: [86.0, 12.0, 0.0]}
+subjects:
+  - name: a
+    proxy: {kind: box, size: [1,1,1]}
+    keys: [{t: 0.0, loc: [0,0,0]}]
