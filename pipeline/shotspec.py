@@ -32,7 +32,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_STYLE = os.path.join(REPO_ROOT, "style", "niulai.toml")
 
 VALID_PROXY_KINDS = {"humanoid", "gourd", "rock", "tree", "snake", "box"}
-VALID_SPRAY_KINDS = {"fire", "water"}
+VALID_SPRAY_KINDS = {"fire", "water", "needle"}
 
 
 class SpecError(Exception):
@@ -59,8 +59,12 @@ class Subject:
     keys: list[Key] = field(default_factory=list)
     # 眼睛闪烁的时刻（秒）。千里眼用，见 build_shot.apply_flash()
     flash: list[float] = field(default_factory=list)
-    # 喷火/喷水。{kind: fire|water, at: [秒...], dur: 秒}，见 build_shot.apply_spray()
+    # 喷火/喷水/毒针。{kind, at: [秒...], dur, yaw, pitch}，见 build_shot.apply_spray()
     spray: dict[str, Any] = field(default_factory=dict)
+    # 变色。{at: [秒...], dur, color}。三娃铜头铁臂用
+    tint: dict[str, Any] = field(default_factory=dict)
+    # 隐身。{at: [秒...], dur}。人缩没 + 星星闪。六娃用
+    vanish: dict[str, Any] = field(default_factory=dict)
 
     def asset_path(self, root: str = REPO_ROOT) -> str | None:
         if not self.asset:
@@ -273,6 +277,8 @@ def load_shot(path: str) -> Shot:
             ],
             flash=flash,
             spray=spray,
+            tint=s_raw.get("tint") or {},
+            vanish=s_raw.get("vanish") or {},
         )
         _check_keys(subject.keys, duration, f"{where}.keys")
         subjects.append(subject)
@@ -364,6 +370,8 @@ def shot_to_dict(shot: Shot) -> dict[str, Any]:
                 "keys": [_key_to_dict(k) for k in s.keys],
                 "flash": s.flash,
                 "spray": s.spray,
+                "tint": s.tint,
+                "vanish": s.vanish,
             }
             for s in shot.subjects
         ],
@@ -405,6 +413,8 @@ def shot_from_dict(raw: dict[str, Any]) -> Shot:
                 keys=keys(s.get("keys", [])),
                 flash=[float(f) for f in s.get("flash", [])],
                 spray=s.get("spray") or {},
+                tint=s.get("tint") or {},
+                vanish=s.get("vanish") or {},
             )
             for s in raw.get("subjects", [])
         ],

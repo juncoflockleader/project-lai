@@ -21,5 +21,8 @@ beats:
   - id: b4
     name: 七个葫芦娃落地
     shots: [sh040]
+  - id: b5
+    name: 蛤蟆精、蜈蚣精、马蜂精
+    shots: [sh050]
 
 status: 骨架。三个镜头是流水线样例，不是最终分镜。

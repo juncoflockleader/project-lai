@@ -80,7 +80,12 @@ def _join(objs: list[bpy.types.Object], name: str) -> bpy.types.Object:
     bpy.ops.object.join()
     joined = bpy.context.active_object
     joined.name = name
-    return joined
+    # 合并出来的物体一律把缩放烘进网格。
+    # `_box()` 是靠设 obj.scale 定尺寸的，这层缩放会留在 join 的结果上，
+    # 已经咬过两次：一次是 parent 上去的喷嘴被压扁掉到胯上；一次是星星
+    # 被 scale=1 的开关动画放大六十多倍，整个飞出画面，只在地上留一道影子。
+    # 在这儿根治，凡是 join 出来的东西 scale 都是 (1,1,1)。
+    return _apply_scale(joined)
 
 
 def _apply_scale(obj: bpy.types.Object) -> bpy.types.Object:
@@ -320,6 +325,55 @@ def _build_scorpion_tail(name: str, height: float, unit: float,
     return parts
 
 
+def _build_weapon(name: str, kind: str, unit: float,
+                  color: tuple) -> list[bpy.types.Object]:
+    """手里的家伙。钢叉、单斧、双斧，都是方块拼的，没有刃。"""
+    mat = _material(f"{name}_jia", color)
+    parts: list[bpy.types.Object] = []
+
+    def one_axe(tag: str, sx: float, tilt: float) -> None:
+        # 斧子要举到肩以上。原来杆心在 3.1u、刃在 4.5u，两把斧子都垂在胯边，
+        # 渲出来是两根拐杖。手在 height-3.4u 那儿，刃得再高出去一截才像斧子。
+        gan = _box(f"{name}_fugan{tag}", (unit * 0.15, unit * 0.15, unit * 4.2),
+                   (sx, -unit * 0.55, unit * 5.0), mat)
+        ren = _box(f"{name}_furen{tag}", (unit * 0.78, unit * 0.20, unit * 1.05),
+                   (sx + unit * 0.30, -unit * 0.55, unit * 6.9), mat)
+        for o in (gan, ren):
+            o.rotation_euler = (0.0, math.radians(tilt), 0.0)
+        parts.extend([gan, ren])
+
+    if kind == "trident":
+        # 钢叉：一根杆，顶上一道横梁，三个齿
+        x = unit * 1.62      # 往手里收，别立在身子外边
+        parts.append(_box(f"{name}_chagan", (unit * 0.17, unit * 0.17, unit * 6.4),
+                          (x, -unit * 0.55, unit * 3.2), mat))
+        parts.append(_box(f"{name}_chaheng", (unit * 1.05, unit * 0.16, unit * 0.16),
+                          (x, -unit * 0.55, unit * 6.1), mat))
+        for i, dx in enumerate((-0.42, 0.0, 0.42)):
+            parts.append(_box(f"{name}_chachi{i}", (unit * 0.13, unit * 0.13, unit * 1.25),
+                              (x + unit * dx, -unit * 0.55, unit * 6.8), mat))
+    elif kind == "dual_axe":
+        one_axe("L", -unit * 1.75, 13.0)
+        one_axe("R", unit * 1.75, -13.0)
+    elif kind == "axe":
+        one_axe("R", unit * 1.75, -10.0)
+
+    return parts
+
+
+def _build_wings(name: str, height: float, unit: float,
+                 color: tuple) -> list[bpy.types.Object]:
+    """两片翅膀。就是两块斜着的板，不做膜不做脉络，也不做透明 —— 规格里没有透明。"""
+    mat = _material(f"{name}_chi", color)
+    parts = []
+    for tag, sx, tilt in (("L", -1.0, 26.0), ("R", 1.0, -26.0)):
+        wing = _box(f"{name}_chi{tag}", (unit * 2.6, unit * 0.09, unit * 1.35),
+                    (sx * unit * 2.0, unit * 0.75, height - unit * 2.6), mat)
+        wing.rotation_euler = (0.0, math.radians(tilt), math.radians(sx * 16.0))
+        parts.append(wing)
+    return parts
+
+
 def _build_shoes(name: str, shoes: dict, unit: float) -> list[bpy.types.Object]:
     """两只布鞋。鞋帮一块，鞋底一块，右脚往外撇七度。
 
@@ -441,6 +495,15 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
     clothes = spec.get("clothes") or {}
     if clothes:
         parts += _build_clothes(name, clothes, height, unit)
+
+    weapon = spec.get("weapon")
+    if weapon:
+        parts += _build_weapon(name, weapon, unit,
+                               tuple(spec.get("weapon_color", [0.55, 0.56, 0.58])))
+
+    if spec.get("wings"):
+        parts += _build_wings(name, height, unit,
+                              tuple(spec.get("wing_color", [0.82, 0.84, 0.80])))
 
     if spec.get("hold") == "gourd":
         # 宝葫芦。就是藤上那七个葫芦的同一个函数，缩小了摆到身前手的高度。
@@ -671,7 +734,23 @@ def apply_lipsync(objs: dict[str, bpy.types.Object], shot: Shot, style: dict, fp
 SPRAY_COLORS = {
     "fire": ((0.97, 0.55, 0.10), (0.95, 0.26, 0.06), (0.99, 0.83, 0.22)),
     "water": ((0.35, 0.66, 0.94), (0.62, 0.84, 0.97), (0.20, 0.46, 0.86)),
+    "needle": ((0.42, 0.44, 0.40), (0.30, 0.46, 0.24), (0.62, 0.66, 0.58)),
 }
+
+
+def _keyframe_spray(spray_obj, jet_mat, jet_c, flick_c, times, duration, fps) -> None:
+    """喷的开关：缩放 0 -> 1 -> 0，外加喷的时候颜色抖两下（免费）。"""
+    socket = jet_mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"]
+    for t in times:
+        f0, f1 = round(t * fps), round((t + duration) * fps)
+        for frame, sc in ((max(0, f0 - 1), 0.001), (f0 + 1, 1.0),
+                          (max(f0 + 2, f1 - 1), 1.0), (f1 + 1, 0.001)):
+            spray_obj.scale = (sc, sc, sc)
+            spray_obj.keyframe_insert("scale", frame=frame)
+        for frame, col in ((f0 + 1, (*jet_c, 1.0)), (f0 + 5, (*flick_c, 1.0)),
+                           (f0 + 9, (*jet_c, 1.0)), (f1, (*flick_c, 1.0))):
+            socket.default_value = col
+            socket.keyframe_insert("default_value", frame=frame)
 
 
 def apply_spray(name: str, obj: bpy.types.Object, spray: dict,
@@ -704,6 +783,27 @@ def apply_spray(name: str, obj: bpy.types.Object, spray: dict,
     mouth = (0.0, -head_r * 0.9 * 0.85, head_z - head_r * 1.14 * 0.42)
 
     depth = unit * 5.0
+
+    if kind == "needle":
+        # 毒针：三根细锥子扇开，没有头上那团。射的是针不是流体。
+        pieces = []
+        for i, dx in enumerate((-0.55, 0.0, 0.55)):
+            n = _cone(f"{name}_zhen{i}", r_top=unit * 0.02, r_bottom=unit * 0.10,
+                      depth=depth * 0.85,
+                      loc=(mouth[0] + unit * dx, mouth[1],
+                           mouth[2] + depth * 0.45),
+                      material=jet_mat, vertices=4)
+            n.rotation_euler = (0.0, math.radians(dx * 14.0), 0.0)
+            pieces.append(n)
+        spray_obj = _join(pieces, f"{name}_pen")
+        _origin_to(spray_obj, mouth)
+        spray_obj.rotation_euler = (
+            math.radians(float(spray.get("pitch", 78.0))), 0.0,
+            math.radians(float(spray.get("yaw", 62.0))))
+        spray_obj.parent = obj
+        _keyframe_spray(spray_obj, jet_mat, jet_c, flick_c, times, duration, fps)
+        return len(times)
+
     jet = _cone(f"{name}_penzhu", r_top=unit * 0.78, r_bottom=unit * 0.16,
                 depth=depth, loc=(mouth[0], mouth[1], mouth[2] + depth * 0.5),
                 material=jet_mat, vertices=6)
@@ -725,20 +825,85 @@ def apply_spray(name: str, obj: bpy.types.Object, spray: dict,
     )
     spray_obj.parent = obj          # 角色建好时在原点，所以父子变换直接对得上
 
-    for t in times:
-        f0, f1 = round(t * fps), round((t + duration) * fps)
-        for frame, sc in ((max(0, f0 - 1), 0.001), (f0 + 1, 1.0),
-                          (max(f0 + 2, f1 - 1), 1.0), (f1 + 1, 0.001)):
-            spray_obj.scale = (sc, sc, sc)
-            spray_obj.keyframe_insert("scale", frame=frame)
+    _keyframe_spray(spray_obj, jet_mat, jet_c, flick_c, times, duration, fps)
+    return len(times)
 
-        # 喷的时候颜色抖两下，免费
-        socket = jet_mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"]
-        for frame, col in ((f0 + 1, (*jet_c, 1.0)), (f0 + 5, (*flick_c, 1.0)),
-                           (f0 + 9, (*jet_c, 1.0)), (f1, (*flick_c, 1.0))):
+
+def apply_tint(name: str, tint: dict, fps: int) -> int:
+    """三娃铜头铁臂：到点了把皮肤材质染成铜色，过一会儿再染回来。
+
+    科长首肯了换颜色。规格里 metallic=0 specular=0，本来也做不出金属反光，
+    所谓「铜」只能是一个颜色。一个面都不加。
+    """
+    material = bpy.data.materials.get(f"{name}_se")
+    if material is None or not material.use_nodes:
+        return 0
+    bsdf = material.node_tree.nodes.get("Principled BSDF")
+    if bsdf is None:
+        return 0
+    socket = bsdf.inputs.get("Base Color")
+    if socket is None:
+        return 0
+
+    base = tuple(socket.default_value)
+    hard = (*tuple(tint.get("color", [0.72, 0.45, 0.20])), 1.0)
+    duration = float(tint.get("dur", 1.2))
+
+    for t in tint.get("at", []):
+        f0, f1 = round(t * fps), round((t + duration) * fps)
+        for frame, col in ((max(0, f0 - 2), base), (f0, hard),
+                           (f1, hard), (f1 + 2, base)):
             socket.default_value = col
             socket.keyframe_insert("default_value", frame=frame)
+    return len(tint.get("at", []))
 
+
+def apply_vanish(name: str, obj: bpy.types.Object, subject_keys: list,
+                 vanish: dict, height: float, unit: float, fps: int) -> int:
+    """六娃隐身：人缩没，原地留几颗星星闪一下。
+
+    科长说不就是变没了然后几个星星在那闪光吗 —— 对，而且这是唯一能做的：
+    规格里没有透明（`[render]` 没开 alpha），淡出做不了。变没 + 星星
+    正好是手工片会用的招。
+
+    星星是两根细条交叉成的十字，三颗，大小位置各不同。
+
+    **星星不能 parent 在人身上** —— 人要缩到 0，子物体会跟着一起缩没，
+    渲出来就是人没了、星星也没了。所以星星独立，复制人的位移关键帧跟着走。
+    """
+    times = vanish.get("at") or []
+    duration = float(vanish.get("dur", 1.2))
+    if not times:
+        return 0
+
+    star_mat = _material(f"{name}_xingxing",
+                         tuple(vanish.get("star_color", [1.0, 0.97, 0.62])))
+    pieces = []
+    for i, (sx, sz, sw) in enumerate(((-0.9, 5.4, 0.62), (0.8, 6.6, 0.48),
+                                      (0.1, 3.9, 0.54))):
+        a = _box(f"{name}_xing{i}a", (unit * sw * 2.4, unit * 0.11, unit * 0.11),
+                 (unit * sx, -unit * 0.7, unit * sz), star_mat)
+        b = _box(f"{name}_xing{i}b", (unit * 0.11, unit * 0.11, unit * sw * 2.4),
+                 (unit * sx, -unit * 0.7, unit * sz), star_mat)
+        pieces += [a, b]
+    stars = _join(pieces, f"{name}_xing")
+    # 原点跟人一样放脚底，这样直接套用人的位移关键帧就对得上
+    _origin_to(stars, (0.0, 0.0, 0.0))
+    apply_keys(stars, [Key(t=k.t, loc=k.loc) for k in subject_keys if k.loc], fps)
+
+    for t in times:
+        f0, f1 = round(t * fps), round((t + duration) * fps)
+        # 人：缩没，再回来
+        for frame, sc in ((max(0, f0 - 1), 1.0), (f0 + 1, 0.001),
+                          (max(f0 + 2, f1 - 1), 0.001), (f1 + 1, 1.0)):
+            obj.scale = (sc, sc, sc)
+            obj.keyframe_insert("scale", frame=frame)
+        # 星星：反着来，人没的时候闪，而且闪两下
+        for frame, sc in ((max(0, f0 - 1), 0.001), (f0 + 1, 1.0), (f0 + 5, 0.001),
+                          (f0 + 8, 1.0), (f0 + 12, 0.001),
+                          (max(f0 + 13, f1 - 3), 1.0), (f1, 0.001)):
+            stars.scale = (sc, sc, sc)
+            stars.keyframe_insert("scale", frame=frame)
     return len(times)
 
 
@@ -788,12 +953,21 @@ def build(shot: Shot, style: dict) -> dict:
     proxied: list[str] = []
     flashed = 0
     sprayed = 0
+    tinted = 0
+    vanished = 0
     for subject in shot.subjects:
         obj = build_subject(subject)
         objs[subject.name] = obj
         apply_keys(obj, subject.keys, fps)
         if subject.flash:
             flashed += apply_flash(subject.name, subject.flash, fps)
+        if subject.tint:
+            tinted += apply_tint(subject.name, subject.tint, fps)
+        if subject.vanish:
+            vanished += apply_vanish(
+                subject.name, obj, subject.keys, subject.vanish,
+                float(subject.proxy.get("height", 1.7)),
+                float(subject.proxy.get("height", 1.7)) / 8.0, fps)
         if subject.spray:
             sprayed += apply_spray(subject.name, obj, subject.spray,
                                    float(subject.proxy.get("height", 1.7)),
@@ -811,4 +985,6 @@ def build(shot: Shot, style: dict) -> dict:
         "lipsync": flapped,
         "flash": flashed,
         "spray": sprayed,
+        "tint": tinted,
+        "vanish": vanished,
     }
