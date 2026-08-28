@@ -27,5 +27,8 @@ beats:
   - id: b6
     name: 大娃变大，七娃收妖
     shots: [sh060]
+  - id: b7
+    name: 小妖攻打葫芦藤，爷爷被捆走
+    shots: [sh070]
 
 status: 骨架。三个镜头是流水线样例，不是最终分镜。

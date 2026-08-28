@@ -31,7 +31,7 @@ except ModuleNotFoundError:  # Python 3.9 / 3.10
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_STYLE = os.path.join(REPO_ROOT, "style", "niulai.toml")
 
-VALID_PROXY_KINDS = {"humanoid", "gourd", "rock", "tree", "snake", "box"}
+VALID_PROXY_KINDS = {"humanoid", "gourd", "vine", "rock", "tree", "snake", "box"}
 VALID_SPRAY_KINDS = {"fire", "water", "needle"}
 
 
@@ -69,6 +69,8 @@ class Subject:
     grow: dict[str, Any] = field(default_factory=dict)
     # 收妖。{at: 秒, dur, into: 角色名} 或 {to: [x,y,z]}。变大的反面
     capture: dict[str, Any] = field(default_factory=dict)
+    # 捆绑。{at: 秒, color}。绳子是有时间的，不给 at 就是一直捆着
+    bind: dict[str, Any] = field(default_factory=dict)
 
     def asset_path(self, root: str = REPO_ROOT) -> str | None:
         if not self.asset:
@@ -250,8 +252,14 @@ def load_shot(path: str) -> Shot:
                 raise SpecError(
                     f"{where}.flash[{j}]: {ftv} 不在镜头时长 0~{duration} 之内")
             flash.append(ftv)
-        if flash and not (s_raw.get("proxy") or {}).get("face", {}).get("eyes", False):
-            raise SpecError(f"{where}.flash: 要闪眼睛，proxy.face.eyes 得是 true")
+        if flash:
+            pr = s_raw.get("proxy") or {}
+            # 人形的眼睛在 proxy.face.eyes，葫芦的在 proxy.eyes
+            has_eyes = pr.get("face", {}).get("eyes", False) or pr.get("eyes", False)
+            if not has_eyes:
+                raise SpecError(
+                    f"{where}.flash: 要闪眼睛，人形得 proxy.face.eyes=true，"
+                    f"葫芦得 proxy.eyes=true")
 
         spray = s_raw.get("spray") or {}
         if spray:
@@ -285,6 +293,7 @@ def load_shot(path: str) -> Shot:
             vanish=s_raw.get("vanish") or {},
             grow=s_raw.get("grow") or {},
             capture=s_raw.get("capture") or {},
+            bind=s_raw.get("bind") or {},
         )
         _check_keys(subject.keys, duration, f"{where}.keys")
         subjects.append(subject)
@@ -380,6 +389,7 @@ def shot_to_dict(shot: Shot) -> dict[str, Any]:
                 "vanish": s.vanish,
                 "grow": s.grow,
                 "capture": s.capture,
+                "bind": s.bind,
             }
             for s in shot.subjects
         ],
@@ -425,6 +435,7 @@ def shot_from_dict(raw: dict[str, Any]) -> Shot:
                 vanish=s.get("vanish") or {},
                 grow=s.get("grow") or {},
                 capture=s.get("capture") or {},
+                bind=s.get("bind") or {},
             )
             for s in raw.get("subjects", [])
         ],

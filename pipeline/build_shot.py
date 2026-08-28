@@ -568,7 +568,8 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
 
 
 def _gourd_parts(name: str, color: tuple, scale: float,
-                 offset: tuple = (0.0, 0.0, 0.0)) -> list[bpy.types.Object]:
+                 offset: tuple = (0.0, 0.0, 0.0),
+                 eyes: bool = False) -> list[bpy.types.Object]:
     """一个葫芦的零件：两个球摞着。
 
     拆出来是为了复用 —— 藤上那七个葫芦和七娃手里那个宝葫芦走的是这一个函数，
@@ -576,16 +577,58 @@ def _gourd_parts(name: str, color: tuple, scale: float,
     """
     skin = _material(f"{name}_se", color)
     ox, oy, oz = offset
-    return [
+    parts = [
         _sphere(f"{name}_xia", 0.34 * scale, (ox, oy, oz + 0.34 * scale), skin),
         _sphere(f"{name}_shang", 0.20 * scale, (ox, oy, oz + 0.78 * scale), skin),
     ]
+    if eyes:
+        # 眼睛长在下面那个大球上。材质名要和人形一致（_yanbai / _yanzhu），
+        # 这样 apply_flash() 不用改就能给葫芦闪眼睛。
+        white = _material(f"{name}_yanbai", (0.95, 0.95, 0.93))
+        black = _material(f"{name}_yanzhu", (0.09, 0.08, 0.08))
+        r = 0.34 * scale
+        for tag, ex, ez, er in (("L", -0.34, 0.16, 0.17), ("R", 0.31, 0.20, 0.155)):
+            cx = ox + r * ex
+            cz = oz + 0.34 * scale + r * ez
+            cy = oy - r * 0.86
+            parts.append(_sphere(f"{name}_yanbai{tag}", r * er, (cx, cy, cz),
+                                 white, segments=6))
+            parts.append(_sphere(f"{name}_yanzhu{tag}", r * er * 0.46,
+                                 (cx, cy - r * er * 0.72, cz), black, segments=6))
+    return parts
+
+
+def _proxy_vine(name: str, spec: dict) -> bpy.types.Object:
+    """葫芦藤。两根立柱、一道横梁、几根垂下来的藤，外加几片叶子。
+
+    藤不做曲线，是一节一节直的 —— 手工片不会去弯藤。
+    """
+    width = float(spec.get("width", 4.6))
+    height = float(spec.get("height", 2.4))
+    stems = int(spec.get("stems", 7))
+    wood = _material(f"{name}_teng", tuple(spec.get("color", [0.34, 0.26, 0.14])))
+    leaf = _material(f"{name}_ye", tuple(spec.get("leaf_color", [0.24, 0.46, 0.20])))
+
+    parts = [
+        _box(f"{name}_zhuL", (0.14, 0.14, height), (-width / 2, 0.0, height / 2), wood),
+        _box(f"{name}_zhuR", (0.14, 0.14, height), (width / 2, 0.0, height / 2), wood),
+        _box(f"{name}_heng", (width + 0.2, 0.12, 0.12), (0.0, 0.0, height), wood),
+    ]
+    for i in range(stems):
+        x = -width / 2 + width * (i + 0.5) / stems
+        drop = 0.34 + 0.10 * (i % 3)          # 长短不一，故意的
+        parts.append(_box(f"{name}_diao{i}", (0.07, 0.07, drop),
+                          (x, 0.0, height - drop / 2), wood))
+        parts.append(_box(f"{name}_ye{i}", (0.42, 0.06, 0.30),
+                          (x + 0.16, -0.06, height - 0.12), leaf))
+    return _join(parts, name)
 
 
 def _proxy_gourd(name: str, spec: dict) -> bpy.types.Object:
     """一个葫芦。两个球摞着。"""
     return _join(_gourd_parts(name, tuple(spec.get("color", [0.85, 0.55, 0.1])),
-                              float(spec.get("scale", 1.0))), name)
+                              float(spec.get("scale", 1.0)),
+                              eyes=bool(spec.get("eyes", False))), name)
 
 
 def _proxy_rock(name: str, spec: dict) -> bpy.types.Object:
@@ -628,6 +671,7 @@ def _proxy_box(name: str, spec: dict) -> bpy.types.Object:
 
 PROXY_BUILDERS = {
     "humanoid": _proxy_humanoid,
+    "vine": _proxy_vine,
     "gourd": _proxy_gourd,
     "rock": _proxy_rock,
     "tree": _proxy_tree,
@@ -777,12 +821,18 @@ def apply_spray(name: str, obj: bpy.types.Object, spray: dict,
     jet_mat = _material(f"{name}_pen", jet_c)
     ball_mat = _material(f"{name}_penqiu", ball_c)
 
-    # 嘴的位置：照默认头型算（head_z / b / c 跟 _proxy_humanoid 里一致）
-    head_z = height - unit * 0.95
-    head_r = unit * 0.92
-    mouth = (0.0, -head_r * 0.9 * 0.85, head_z - head_r * 1.14 * 0.42)
+    # 喷的起点。给了 from 就用给的（葫芦没有人头，得自己指），
+    # 没给就照默认人形头型算（head_z / head_r 跟 _proxy_humanoid 里一致）。
+    if spray.get("from"):
+        mouth = tuple(spray["from"])
+    else:
+        head_z = height - unit * 0.95
+        head_r = unit * 0.92
+        mouth = (0.0, -head_r * 0.9 * 0.85, head_z - head_r * 1.14 * 0.42)
 
-    depth = unit * 5.0
+    # 射程。葫芦没有 height，unit 会退到默认值，喷出来只有一米出头，
+    # 够不着几米外的小妖。scale 用来加长。
+    depth = unit * 5.0 * float(spray.get("scale", 1.0))
 
     if kind == "needle":
         # 毒针：三根细锥子扇开，没有头上那团。射的是针不是流体。
@@ -804,13 +854,16 @@ def apply_spray(name: str, obj: bpy.types.Object, spray: dict,
         _keyframe_spray(spray_obj, jet_mat, jet_c, flick_c, times, duration, fps)
         return len(times)
 
-    jet = _cone(f"{name}_penzhu", r_top=unit * 0.78, r_bottom=unit * 0.16,
+    # 粗细和射程分开控制。跟着射程一起放大的话，射得远就变成一个大喇叭，
+    # 把后面要打的人全挡住了 —— 试过。
+    jet_r = unit * 0.78 * float(spray.get("width", 1.0))
+    jet = _cone(f"{name}_penzhu", r_top=jet_r, r_bottom=unit * 0.16,
                 depth=depth, loc=(mouth[0], mouth[1], mouth[2] + depth * 0.5),
                 material=jet_mat, vertices=6)
     # 绕 X 转 90 度，让锥子的长轴指向 -Y，也就是脸朝的方向
     # 先不转，等 join 完、原点挪到嘴上之后，整体转 —— 这样转的是绕嘴转
 
-    ball = _sphere(f"{name}_penqiu", unit * 0.9,
+    ball = _sphere(f"{name}_penqiu", jet_r * 1.15,
                    (mouth[0], mouth[1], mouth[2] + depth + unit * 0.45),
                    ball_mat, segments=6)
 
@@ -853,6 +906,33 @@ def gourd_anchor(subject) -> tuple:
     height = float(subject.proxy.get("height", 1.7))
     unit = height / 8.0
     return (0.0, -unit * 1.15, height - unit * 4.1)
+
+
+def apply_bind(name: str, obj: bpy.types.Object, bind: dict,
+               height: float, unit: float, fps: int) -> int:
+    """把人捆上：身上两道深色带子。不做绳结，不做缠绕。
+
+    做成**独立物体**而不是角色的一部分，因为绳子是有时间的 ——
+    爷爷是被抓那一刻才捆上的，从第 0 帧就捆着是穿帮。
+    """
+    rope = _material(f"{name}_shengzi", tuple(bind.get("color", [0.30, 0.24, 0.14])))
+    pieces = [
+        _box(f"{name}_kun{i}", (unit * 2.45, unit * 1.45, unit * 0.26),
+             (0.0, 0.0, height - unit * rz), rope)
+        for i, rz in enumerate((2.15, 3.35))
+    ]
+    ropes = _join(pieces, f"{name}_kun")
+    _origin_to(ropes, (0.0, 0.0, 0.0))
+    ropes.parent = obj          # 角色 scale 已烘成 1，父子变换直接对得上
+
+    at = bind.get("at")
+    if at is None:
+        return 1                # 没给时间就是一直捆着
+    f0 = round(float(at) * fps)
+    for frame, sc in ((max(0, f0 - 1), 0.001), (f0, 1.0)):
+        ropes.scale = (sc, sc, sc)
+        ropes.keyframe_insert("scale", frame=frame)
+    return 1
 
 
 def apply_grow(name: str, obj: bpy.types.Object, grow: dict, fps: int) -> int:
@@ -1029,12 +1109,18 @@ def build(shot: Shot, style: dict) -> dict:
     vanished = 0
     grown = 0
     captured = 0
+    bound_n = 0
     for subject in shot.subjects:
         obj = build_subject(subject)
         objs[subject.name] = obj
         apply_keys(obj, subject.keys, fps)
         if subject.flash:
             flashed += apply_flash(subject.name, subject.flash, fps)
+        if subject.bind:
+            bound_n += apply_bind(
+                subject.name, obj, subject.bind,
+                float(subject.proxy.get("height", 1.7)),
+                float(subject.proxy.get("height", 1.7)) / 8.0, fps)
         if subject.grow:
             grown += apply_grow(subject.name, obj, subject.grow, fps)
         if subject.tint:
@@ -1084,4 +1170,5 @@ def build(shot: Shot, style: dict) -> dict:
         "vanish": vanished,
         "grow": grown,
         "capture": captured,
+        "bind": bound_n,
     }

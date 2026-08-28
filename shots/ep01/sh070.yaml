@@ -1,0 +1,200 @@
+id: sh070
+episode: ep01
+title: 小妖攻打葫芦藤，葫芦们睁眼反抗，爷爷被捆走
+duration: 11.0
+
+camera:
+  lens: 32
+  keys:
+    - {t: 0.0, loc: [0.4, -10.6, 2.30], rot: [85.0, 0.0, 0.0]}
+    - {t: 11.0, loc: [-0.2, -9.6, 2.15], rot: [85.0, 0.0, 0.0]}
+
+subjects:
+  # 葫芦藤
+  - name: teng
+    proxy: {kind: vine, width: 4.6, height: 2.45, stems: 7}
+    keys:
+      - {t: 0.0, loc: [-1.1, 0.6, 0.0]}
+
+  # 红葫芦
+  - name: hulu1
+    proxy:
+      kind: gourd
+      color: [0.78, 0.14, 0.12]
+      scale: 1.0
+      eyes: true                      # 还是葫芦形态，只是睁了眼
+    keys:
+      - {t: 0.0, loc: [-3.40, 0.6, 1.62]}
+      - {t: 11.0, loc: [-3.40, 0.6, 1.62]}
+    flash: [2.0, 2.5]                 # 七个葫芦一起睁眼
+
+  # 橙葫芦
+  - name: hulu2
+    proxy:
+      kind: gourd
+      color: [0.88, 0.48, 0.08]
+      scale: 1.0
+      eyes: true                      # 还是葫芦形态，只是睁了眼
+    keys:
+      - {t: 0.0, loc: [-2.74, 0.6, 1.62]}
+      - {t: 11.0, loc: [-2.74, 0.6, 1.62]}
+    flash: [2.0, 2.5]                 # 七个葫芦一起睁眼
+
+  # 黄葫芦
+  - name: hulu3
+    proxy:
+      kind: gourd
+      color: [0.92, 0.82, 0.1]
+      scale: 1.0
+      eyes: true                      # 还是葫芦形态，只是睁了眼
+    keys:
+      - {t: 0.0, loc: [-2.09, 0.6, 1.62]}
+      - {t: 11.0, loc: [-2.09, 0.6, 1.62]}
+    flash: [2.0, 2.5]                 # 七个葫芦一起睁眼
+
+  # 绿葫芦
+  - name: hulu4
+    proxy:
+      kind: gourd
+      color: [0.2, 0.62, 0.22]
+      scale: 1.0
+      eyes: true                      # 还是葫芦形态，只是睁了眼
+    keys:
+      - {t: 0.0, loc: [-1.43, 0.6, 1.62]}
+      - {t: 11.0, loc: [-1.43, 0.6, 1.62]}
+    flash: [2.0, 2.5]                 # 七个葫芦一起睁眼
+    spray: {kind: fire, at: [3.0], dur: 1.8, yaw: 63, pitch: 96,
+            scale: 3.4, from: [0.0, -0.34, 0.42]}   # 葫芦没有人头，起点和射程都得自己指
+
+  # 青葫芦
+  - name: hulu5
+    proxy:
+      kind: gourd
+      color: [0.16, 0.66, 0.62]
+      scale: 1.0
+      eyes: true                      # 还是葫芦形态，只是睁了眼
+    keys:
+      - {t: 0.0, loc: [-0.77, 0.6, 1.62]}
+      - {t: 11.0, loc: [-0.77, 0.6, 1.62]}
+    flash: [2.0, 2.5]                 # 七个葫芦一起睁眼
+    spray: {kind: water, at: [3.6], dur: 1.8, yaw: 60, pitch: 94,
+            scale: 3.2, from: [0.0, -0.34, 0.42]}
+
+  # 蓝葫芦
+  - name: hulu6
+    proxy:
+      kind: gourd
+      color: [0.14, 0.32, 0.78]
+      scale: 1.0
+      eyes: true                      # 还是葫芦形态，只是睁了眼
+    keys:
+      - {t: 0.0, loc: [-0.11, 0.6, 1.62]}
+      - {t: 11.0, loc: [-0.11, 0.6, 1.62]}
+    flash: [2.0, 2.5]                 # 七个葫芦一起睁眼
+
+  # 紫葫芦
+  - name: hulu7
+    proxy:
+      kind: gourd
+      color: [0.52, 0.18, 0.68]
+      scale: 1.0
+      eyes: true                      # 还是葫芦形态，只是睁了眼
+    keys:
+      - {t: 0.0, loc: [0.54, 0.6, 1.62]}
+      - {t: 11.0, loc: [0.54, 0.6, 1.62]}
+    flash: [2.0, 2.5]                 # 七个葫芦一起睁眼
+
+  # 小妖 1
+  - name: xiaoyao1
+    proxy:
+      kind: humanoid
+      height: 1.44
+      color: [0.44, 0.56, 0.3]
+      weapon: trident
+      weapon_color: [0.52, 0.53, 0.56]
+      face: {eyes: true, brows: true, nose: true, fangs: true, hair: none}
+      clothes: {robe: [0.30, 0.26, 0.22], sash: [0.18, 0.15, 0.12], length: short}
+    keys:
+      - {t: 0.0, loc: [3.30, 0.1, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 3.0, loc: [1.60, 0.1, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 5.4, loc: [1.60, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+      - {t: 6.4, loc: [-4.10, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+      - {t: 11.0, loc: [6.10, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+
+  # 小妖 2
+  - name: xiaoyao2
+    proxy:
+      kind: humanoid
+      height: 1.52
+      color: [0.52, 0.34, 0.24]
+      weapon: dual_axe
+      weapon_color: [0.52, 0.53, 0.56]
+      face: {eyes: true, brows: true, nose: true, fangs: true, hair: none}
+      clothes: {robe: [0.30, 0.26, 0.22], sash: [0.18, 0.15, 0.12], length: short}
+    keys:
+      - {t: 0.0, loc: [4.30, 0.1, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 3.0, loc: [2.55, 0.1, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 5.4, loc: [2.55, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+      - {t: 6.4, loc: [-3.30, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+      - {t: 11.0, loc: [6.90, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+
+  # 小妖 3
+  - name: xiaoyao3
+    proxy:
+      kind: humanoid
+      height: 1.38
+      color: [0.6, 0.46, 0.18]
+      weapon: axe
+      weapon_color: [0.52, 0.53, 0.56]
+      face: {eyes: true, brows: true, nose: true, fangs: true, hair: none}
+      clothes: {robe: [0.30, 0.26, 0.22], sash: [0.18, 0.15, 0.12], length: short}
+    keys:
+      - {t: 0.0, loc: [5.10, 0.1, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 3.0, loc: [3.45, 0.1, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 5.4, loc: [3.45, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+      - {t: 11.0, loc: [11.00, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+
+  # 小妖 4
+  - name: xiaoyao4
+    proxy:
+      kind: humanoid
+      height: 1.46
+      color: [0.38, 0.44, 0.52]
+      weapon: trident
+      weapon_color: [0.52, 0.53, 0.56]
+      face: {eyes: true, brows: true, nose: true, fangs: true, hair: none}
+      clothes: {robe: [0.30, 0.26, 0.22], sash: [0.18, 0.15, 0.12], length: short}
+    keys:
+      - {t: 0.0, loc: [5.90, 0.1, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 3.0, loc: [4.30, 0.1, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 5.4, loc: [4.30, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+      - {t: 11.0, loc: [11.80, 0.1, 0.0], rot: [0.0, 0.0, 180.0]}
+
+  # 爷爷：被 1、2 号小妖放倒扛走
+  - name: yeye
+    proxy:
+      kind: humanoid
+      height: 1.62
+      color: [0.62, 0.48, 0.36]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: elder
+        beard: long
+        hair_color: [0.93, 0.93, 0.91]
+      clothes: {robe: [0.44, 0.50, 0.56], sash: [0.34, 0.25, 0.17], length: long}
+      shoes: {color: [0.16, 0.15, 0.14], sole: [0.86, 0.84, 0.78]}
+    keys:
+      - {t: 0.0, loc: [-4.60, -0.5, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 5.4, loc: [-4.60, -0.5, 0.0], rot: [0.0, 0.0, 0.0]}
+      # 放倒扛走。匀速，不挣扎 —— 手工片不做挣扎动作。
+      - {t: 6.6, loc: [-3.70, -0.4, 0.62], rot: [0.0, 78.0, 0.0]}
+      - {t: 11.0, loc: [6.50, -0.4, 0.62], rot: [0.0, 78.0, 0.0]}
+    bind: {at: 5.6}                   # 被抓那一刻才捆上，不是一开场就捆着
+
+notes: |
+  大场面。葫芦还是葫芦形态，没变成娃，只是睁了眼（flash）。
+  绿葫芦喷火、青葫芦喷水 —— 葫芦没有人头，喷射起点和射程靠 spray.from / scale 自己指。
+  小妖 3、4 号被打跑直接往右；1、2 号折回去把爷爷放倒扛走，全程贴着爷爷走。
+  爷爷不挣扎：匀速平移，没有缓冲。
