@@ -567,3 +567,17 @@ def check_camera(shot: Shot, style: dict) -> tuple[str, list[str], list[str]]:
             f"运镜是 {kind}，不在 [camera].allowed_moves {allowed} 里。"
             f"要么改分镜，要么在 style/niulai.toml 里把它加进去")
     return kind, problems, notes
+
+
+def apply_stage(style: dict, shot: Shot) -> dict:
+    """把镜头级的 stage 覆盖叠到画质规格上，返回新的 style。
+
+    render.py 和 export_web.py 都要用。原来只写在 render.py 里，
+    导出器没有 —— 迷宫在网页里天是蓝的，渲出来是紫的，同一个设置两处实现漏了一处。
+    """
+    stage = shot.stage or {}
+    if not stage.get("world_color"):
+        return style
+    return {**style, "light": {**style["light"],
+                               "world_color": stage["world_color"],
+                               "world_strength": stage.get("world_strength", 1.0)}}

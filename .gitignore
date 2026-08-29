@@ -23,3 +23,6 @@ venv/
 # 且本仓库公开。见 docs/SOURCE_HULUWA.md「权利」一节。
 dianyinglai/
 *.mp4.part
+
+# 网页勘景的中间产物（Blender 导出的场景几何，可重新生成）
+web/scene_*.json

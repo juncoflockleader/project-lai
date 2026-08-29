@@ -30,7 +30,7 @@ if _ROOT not in sys.path:
 import bpy  # noqa: E402
 
 from pipeline import build_shot, degrade  # noqa: E402
-from pipeline.shotspec import shot_from_dict  # noqa: E402
+from pipeline.shotspec import apply_stage, shot_from_dict  # noqa: E402
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -72,12 +72,8 @@ def main() -> int:
     if built["proxied"]:
         print(f"[lai] 用积木代理的：{', '.join(built['proxied'])}")
 
-    # 字卡镜头要黑底：按镜头覆盖世界颜色
-    stage = shot.stage or {}
-    if stage.get("world_color"):
-        style = {**style, "light": {**style["light"],
-                                    "world_color": stage["world_color"],
-                                    "world_strength": stage.get("world_strength", 1.0)}}
+    # 字卡／迷宫镜头要改天色。和 export_web.py 共用同一个函数。
+    style = apply_stage(style, shot)
 
     applied = degrade.apply_all(bpy.context.scene, style)
     print(

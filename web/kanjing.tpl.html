@@ -1,0 +1,180 @@
+<meta charset="utf-8">
+<title>葫来 勘景</title>
+<style>
+  :root { --ink:#e8e6e0; --dim:#8d8a84; --bg:#151318; --line:#2c2830; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; overflow:hidden; }
+  #wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+  canvas { image-rendering:pixelated; background:#000;
+           width:100vw; height:100vh; object-fit:contain; display:block; }
+  .panel { position:fixed; background:rgba(21,19,24,.86); border:1px solid var(--line);
+           padding:8px 11px; border-radius:2px; }
+  #hud { left:10px; top:10px; }
+  #hud b { color:#e0b64a; font-weight:600; }
+  #hud .k { color:var(--dim); }
+  #help { right:10px; top:10px; text-align:right; color:var(--dim); }
+  #help kbd { color:var(--ink); background:#241f2a; border:1px solid var(--line);
+              border-radius:2px; padding:0 4px; }
+  #start { position:fixed; inset:0; display:flex; flex-direction:column; gap:14px;
+           align-items:center; justify-content:center; background:rgba(10,9,12,.9);
+           cursor:pointer; text-align:center; padding:24px; }
+  #start h1 { margin:0; font-size:30px; letter-spacing:.14em; color:#e0b64a; font-weight:600; }
+  #start p { margin:0; color:var(--dim); max-width:34em; }
+  #start .go { border:1px solid #e0b64a; color:#e0b64a; padding:7px 20px; border-radius:2px; }
+  .hidden { display:none !important; }
+</style>
+
+<div id="wrap"><canvas id="c" width="480" height="270"></canvas></div>
+
+<div id="hud" class="panel">
+  <div><b id="sname">—</b></div>
+  <div class="k"><span id="pos">—</span> · <span id="fps">—</span> · <span id="nf">—</span> 面</div>
+</div>
+
+<div id="help" class="panel">
+  <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 走 · <kbd>Shift</kbd> 快</div>
+  <div><kbd>空格</kbd>/<kbd>C</kbd> 升降 · 鼠标转头</div>
+  <div><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 换景 · <kbd>Esc</kbd> 松开鼠标</div>
+</div>
+
+<div id="start">
+  <h1>葫 来 · 勘 景</h1>
+  <p>第一人称走进已经建好的布景里看。渲染器是手写的画家算法，
+     没有用任何三维库 —— 平涂、无贴图、无抗锯齿，和渲出来的帧同一套规格。</p>
+  <p class="k">（穿山甲提醒：不叫散步，叫勘景。这是正经的电影术语。）</p>
+  <div class="go">点一下开始</div>
+</div>
+
+<script>
+const SCENES = /*__SCENES__*/;
+const cv = document.getElementById('c'), ctx = cv.getContext('2d', {alpha:false});
+const W = cv.width, H = cv.height, CX = W/2, CY = H/2;
+const FOCAL = (W/2) / Math.tan(28 * Math.PI/180);   // 约 56 度水平视角
+const NEAR = 0.08, EYE = 1.62;
+
+let cur = 0, S = null;
+// 每个场景一个进场机位，别一上来就卡在东西里面
+const SPAWN = [[0,-7.5,0], [0,-9,0], [0,-7,0]];
+let px=0, py=-8, pz=EYE, yaw=0, pitch=0;
+const keys = Object.create(null);
+
+function loadScene(i){
+  cur = (i + SCENES.length) % SCENES.length;
+  S = SCENES[cur];
+  const sp = SPAWN[cur] || [0,-8,0];
+  px=sp[0]; py=sp[1]; pz=EYE+sp[2]; yaw=0; pitch=0;
+  document.getElementById('sname').textContent = S.label;
+  document.getElementById('nf').textContent = S.faces.length;
+  // 天空色直接用导出的，和渲出来的帧一致
+  document.body.style.setProperty('--sky', `rgb(${S.sky.join(',')})`);
+}
+
+// ---- 近平面裁剪。不裁的话，跨在相机后面的多边形会投影成满屏乱线 ----
+function clipNear(poly){
+  const out = [];
+  for (let i=0; i<poly.length; i++){
+    const a = poly[i], b = poly[(i+1)%poly.length];
+    const ain = a[2] >= NEAR, bin = b[2] >= NEAR;
+    if (ain) out.push(a);
+    if (ain !== bin){
+      const t = (NEAR - a[2]) / (b[2] - a[2]);
+      out.push([a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, NEAR]);
+    }
+  }
+  return out;
+}
+
+const buf = [];
+function draw(){
+  const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+  const fx = sy*cp, fy = cy*cp, fz = sp;      // 前
+  const rx = cy,    ry = -sy,   rz = 0;       // 右
+  const ux = -sy*sp, uy = -cy*sp, uz = cp;    // 上
+
+  ctx.fillStyle = `rgb(${S.sky.join(',')})`;
+  ctx.fillRect(0,0,W,H);
+
+  buf.length = 0;
+  const F = S.faces;
+  for (let i=0; i<F.length; i++){
+    const vs = F[i].v, n = vs.length;
+    let view = new Array(n), sum = 0, anyFront = false;
+    for (let j=0; j<n; j++){
+      const v = vs[j], dx = v[0]-px, dy = v[1]-py, dz = v[2]-pz;
+      const vz = dx*fx + dy*fy + dz*fz;
+      view[j] = [dx*rx + dy*ry + dz*rz, dx*ux + dy*uy + dz*uz, vz];
+      sum += vz;
+      if (vz >= NEAR) anyFront = true;
+    }
+    if (!anyFront) continue;                 // 整个在身后
+    buf.push([sum/n, view, F[i].c]);
+  }
+  buf.sort((a,b) => b[0]-a[0]);              // 远的先画
+
+  for (let i=0; i<buf.length; i++){
+    let poly = buf[i][1];
+    if (poly.some(p => p[2] < NEAR)) poly = clipNear(poly);
+    if (poly.length < 3) continue;
+    const c = buf[i][2];
+    ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+    ctx.beginPath();
+    for (let j=0; j<poly.length; j++){
+      const p = poly[j], iz = FOCAL / p[2];
+      const sxp = CX + p[0]*iz, syp = CY - p[1]*iz;
+      if (j===0) ctx.moveTo(sxp, syp); else ctx.lineTo(sxp, syp);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+  return buf.length;
+}
+
+let last = performance.now(), acc = 0, frames = 0;
+function tick(now){
+  const dt = Math.min(0.05, (now-last)/1000); last = now;
+  const spd = (keys['shift'] ? 9 : 3.6) * dt;
+  const cy = Math.cos(yaw), sy = Math.sin(yaw);
+  let mf = (keys['w']?1:0) - (keys['s']?1:0);
+  let mr = (keys['d']?1:0) - (keys['a']?1:0);
+  if (mf || mr){
+    // 走的方向只取水平分量，抬头不会往天上飘
+    px += (sy*mf + cy*mr) * spd;
+    py += (cy*mf - sy*mr) * spd;
+  }
+  if (keys[' ']) pz += spd;
+  if (keys['c']) pz -= spd;
+
+  const n = draw();
+  frames++; acc += dt;
+  if (acc > 0.4){
+    document.getElementById('fps').textContent = Math.round(frames/acc) + ' fps';
+    frames = 0; acc = 0;
+  }
+  document.getElementById('pos').textContent =
+    `x ${px.toFixed(1)} y ${py.toFixed(1)} z ${pz.toFixed(1)}`;
+  requestAnimationFrame(tick);
+}
+
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  keys[k] = true;
+  if (k>='1' && k<='9'){ const i = +k-1; if (i < SCENES.length) loadScene(i); }
+  if ([' ','w','a','s','d'].includes(k)) e.preventDefault();
+});
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+addEventListener('mousemove', e => {
+  if (document.pointerLockElement !== cv) return;
+  yaw   += e.movementX * 0.0026;
+  pitch -= e.movementY * 0.0026;
+  pitch = Math.max(-1.45, Math.min(1.45, pitch));
+});
+const start = document.getElementById('start');
+start.addEventListener('click', () => {
+  start.classList.add('hidden');
+  cv.requestPointerLock();
+});
+cv.addEventListener('click', () => cv.requestPointerLock());
+
+loadScene(0);
+requestAnimationFrame(tick);
+</script>
