@@ -1062,7 +1062,8 @@ def build_array(name: str, bases: list, array: dict,
     if shape == "dome":
         radius = float(array.get("radius", 24.0))
         center = tuple(array.get("center", [0.0, 0.0, 0.0])[:3])
-        face_out = bool(array.get("face_out", True))
+        # in  = 脸朝圆心（看得见眼睛）  out = 顶朝外（看见的是屁股）  up = 不转
+        orient = array.get("orient", "out" if array.get("face_out", True) else "up")
     else:
         cols = max(1, int(array.get("grid", [max(1, int(count ** 0.5)), 0])[0]))
         sx, sy = array.get("spacing", [1.2, 1.2])[:2]
@@ -1081,8 +1082,12 @@ def build_array(name: str, bases: list, array: dict,
         if shape == "dome":
             x, y, z = _dome_point(i, count, radius * (1.0 + (h3 - 0.5) * 2 * jz), center)
             obj.location = (x, y, z)
-            if face_out:
-                d = Vector((x - center[0], y - center[1], z - center[2])).normalized()
+            d = Vector((x - center[0], y - center[1], z - center[2])).normalized()
+            if orient == "in":
+                # 葫芦的脸在 -Y。把 +Y 对准径向朝外，-Y 就正好朝圆心，
+                # 站在穹顶底下才看得见眼睛而不是屁股。
+                obj.rotation_euler = d.to_track_quat("Y", "Z").to_euler()
+            elif orient == "out":
                 obj.rotation_euler = d.to_track_quat("Z", "Y").to_euler()
             else:
                 obj.rotation_euler = (0.0, 0.0, math.radians((h1 - 0.5) * 2 * jr))
