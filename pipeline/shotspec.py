@@ -72,6 +72,8 @@ class Subject:
     capture: dict[str, Any] = field(default_factory=dict)
     # 捆绑。{at: 秒, color}。绳子是有时间的，不给 at 就是一直捆着
     bind: dict[str, Any] = field(default_factory=dict)
+    # 跑。{at: [秒...], dur, cycle, swing, bob}。腿会拆出来单独摆
+    run: dict[str, Any] = field(default_factory=dict)
 
     def asset_path(self, root: str = REPO_ROOT) -> str | None:
         if not self.asset:
@@ -297,6 +299,7 @@ def load_shot(path: str) -> Shot:
             grow=s_raw.get("grow") or {},
             capture=s_raw.get("capture") or {},
             bind=s_raw.get("bind") or {},
+            run=s_raw.get("run") or {},
         )
         _check_keys(subject.keys, duration, f"{where}.keys")
         subjects.append(subject)
@@ -395,6 +398,7 @@ def shot_to_dict(shot: Shot) -> dict[str, Any]:
                 "grow": s.grow,
                 "capture": s.capture,
                 "bind": s.bind,
+                "run": s.run,
             }
             for s in shot.subjects
         ],
@@ -441,6 +445,7 @@ def shot_from_dict(raw: dict[str, Any]) -> Shot:
                 grow=s.get("grow") or {},
                 capture=s.get("capture") or {},
                 bind=s.get("bind") or {},
+                run=s.get("run") or {},
             )
             for s in raw.get("subjects", [])
         ],

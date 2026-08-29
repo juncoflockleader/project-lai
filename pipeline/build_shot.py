@@ -521,11 +521,16 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
     unit = height / 8.0
     parts = [
         _box(f"{name}_shen", (unit * 2.2, unit * 1.2, unit * 3.2), (0, 0, height - unit * 3.2), skin),
-        _box(f"{name}_zuoshou", (unit * 0.6, unit * 0.6, unit * 2.6), (-unit * 1.5, 0, height - unit * 3.4), skin),
-        _box(f"{name}_youshou", (unit * 0.6, unit * 0.6, unit * 2.6), (unit * 1.5, 0, height - unit * 3.4), skin),
     ]
+    if spec.get("arms") != "none":       # 跑的时候胳膊由 apply_run() 单独建
+        parts.append(_box(f"{name}_zuoshou", (unit * 0.6, unit * 0.6, unit * 2.6),
+                          (-unit * 1.5, 0, height - unit * 3.4), skin))
+        parts.append(_box(f"{name}_youshou", (unit * 0.6, unit * 0.6, unit * 2.6),
+                          (unit * 1.5, 0, height - unit * 3.4), skin))
 
-    if spec.get("lower") == "tail":
+    if spec.get("legs") == "none":
+        pass                    # 腿由 apply_run() 单独建，好绕胯摆
+    elif spec.get("lower") == "tail":
         lower_mat = (_material(f"{name}_weise", tuple(spec["lower_color"]))
                      if spec.get("lower_color") else skin)
         parts += _build_tail(name, unit, lower_mat, tip=spec.get("tail_tip", True))
@@ -984,6 +989,22 @@ def _loc_at(keys: list, t: float) -> tuple:
     return pts[-1][1]
 
 
+def _rot_at(keys: list, t: float) -> tuple:
+    """按关键帧线性插值求 t 时刻的角度。跑步要在原有转向上叠一个前倾。"""
+    pts = [(k.t, k.rot) for k in keys if k.rot is not None]
+    if not pts:
+        return (0.0, 0.0, 0.0)
+    if t <= pts[0][0]:
+        return pts[0][1]
+    if t >= pts[-1][0]:
+        return pts[-1][1]
+    for (t0, r0), (t1, r1) in zip(pts, pts[1:]):
+        if t0 <= t <= t1:
+            f = 0.0 if t1 == t0 else (t - t0) / (t1 - t0)
+            return tuple(a + (b - a) * f for a, b in zip(r0, r1))
+    return pts[-1][1]
+
+
 def gourd_anchor(subject) -> tuple:
     """某个角色手里那个葫芦的位置（相对角色原点）。收妖往这儿收。
 
@@ -992,6 +1013,92 @@ def gourd_anchor(subject) -> tuple:
     height = float(subject.proxy.get("height", 1.7))
     unit = height / 8.0
     return (0.0, -unit * 1.15, height - unit * 4.1)
+
+
+def apply_run(name: str, obj: bpy.types.Object, subject, run: dict,
+              height: float, unit: float, fps: int) -> int:
+    """跑起来。
+
+    规格里 `foot_lock = false`，角色一直是滑着走的 —— 腿并在身子里，根本没动过。
+    要跑就得把腿拆成独立物体，挂在身上，绕胯摆。
+
+    只有两个姿势，前和后，一拍一换。不做中间帧、不做落地缓冲、不做重心转移 ——
+    手工片就是两张腿轮流换，换出来的顿挫正好被 apply_step 收进 12fps。
+
+    **前倾比摆腿更能读出「在跑」。** 只摆腿的话，远景看上去还是站着的，
+    腿在底下小幅度动而已。身子往前倾一个角度，一眼就是跑。
+    """
+    skin = bpy.data.materials.get(f"{name}_se")
+    if skin is None:
+        return 0
+
+    hip_z = unit * 3.0
+    swing = math.radians(float(run.get("swing", 46.0)))
+    lean = float(run.get("lean", 20.0))
+    cycle = float(run.get("cycle", 0.46))
+    bob = float(run.get("bob", 0.055))
+
+    legs = []
+    for tag, sx in (("L", -1.0), ("R", 1.0)):
+        leg = _box(f"{name}_tui{tag}", (unit * 0.8, unit * 0.8, unit * 3.0),
+                   (sx * unit * 0.7, 0.0, unit * 1.5), skin)
+        _apply_scale(leg)
+        _origin_to(leg, (sx * unit * 0.7, 0.0, hip_z))   # 原点放胯，才是绕胯摆
+        leg.parent = obj
+        legs.append(leg)
+
+    # 胳膊反向摆。袖子必须并进胳膊一起摆 —— 胳膊动袖子不动会脱节。
+    arms = []
+    if run.get("arms", True):
+        clothes = subject.proxy.get("clothes") or {}
+        robe_mat = (bpy.data.materials.get(f"{name}_pao")
+                    if clothes.get("sleeves", True) else None)
+        # 支点用袍子的肩线，和 _build_clothes 里的 shoulder_z 一致。
+        # 用胳膊顶端（height - 2.1u）当支点的话，袖子是照肩线摆的，
+        # 两个高度差 0.55u，一转起来袖子和胳膊就脱节。
+        sh_z = height - unit * 1.55
+        for tag, sx, sl in (("L", -1.0, 2.05), ("R", 1.0, 1.8)):
+            pieces = [_box(f"{name}_bi{tag}", (unit * 0.6, unit * 0.6, unit * 2.6),
+                           (sx * unit * 1.5, 0.0, height - unit * 3.4), skin)]
+            if robe_mat is not None:
+                pieces.append(_box(f"{name}_xiu{tag}", (unit * 0.8, unit * 0.8, unit * sl),
+                                   (sx * unit * 1.42, 0.0, sh_z - unit * sl * 0.5),
+                                   robe_mat))
+            arm = _join(pieces, f"{name}_gebo{tag}") if len(pieces) > 1 else pieces[0]
+            _apply_scale(arm)
+            _origin_to(arm, (sx * unit * 1.5, 0.0, sh_z))   # 原点放肩，绕肩摆
+            arm.parent = obj
+            arms.append(arm)
+
+    n = 0
+    for t0 in run.get("at", [0.0]):
+        duration = float(run.get("dur", 2.0))
+        steps = max(2, int(round(duration / (cycle / 2.0))))
+        base = _loc_at(subject.keys, t0)
+        for i in range(steps + 1):
+            t = t0 + i * cycle / 2.0
+            frame = round(t * fps)
+            sign = 1.0 if i % 2 == 0 else -1.0
+            for k, leg in enumerate(legs):
+                leg.rotation_euler = (sign * swing * (1.0 if k == 0 else -1.0), 0.0, 0.0)
+                leg.keyframe_insert("rotation_euler", frame=frame)
+            # 胳膊和同侧的腿反相
+            for k, arm in enumerate(arms):
+                arm.rotation_euler = (-sign * swing * 0.60 * (1.0 if k == 0 else -1.0),
+                                      0.0, 0.0)
+                arm.keyframe_insert("rotation_euler", frame=frame)
+            # 身子跟着颠。位置要叠在已有的位移关键帧上，所以先按曲线求值再加偏移
+            tc = min(t, subject.keys[-1].t)
+            loc = _loc_at(subject.keys, tc)
+            obj.location = (loc[0], loc[1], loc[2] + (bob if i % 2 else 0.0))
+            obj.keyframe_insert("location", frame=frame)
+            # 前倾叠在原有转向上，别把分镜写的朝向冲掉
+            rx, ry, rz = _rot_at(subject.keys, tc)
+            obj.rotation_euler = (math.radians(rx + lean),
+                                  math.radians(ry), math.radians(rz))
+            obj.keyframe_insert("rotation_euler", frame=frame)
+        n += 1
+    return n
 
 
 def apply_bind(name: str, obj: bpy.types.Object, bind: dict,
@@ -1198,12 +1305,26 @@ def build(shot: Shot, style: dict) -> dict:
     grown = 0
     captured = 0
     bound_n = 0
+    ran = 0
     for subject in shot.subjects:
+        if subject.run:
+            # 跑的话腿和胳膊都要单独建，袖子也归胳膊管
+            proxy = {**subject.proxy, "legs": "none"}
+            if subject.run.get("arms", True):
+                proxy["arms"] = "none"
+                proxy["clothes"] = {**(proxy.get("clothes") or {}),
+                                    "_skip_sleeves": True}
+            subject.proxy = proxy
         obj = build_subject(subject)
         objs[subject.name] = obj
         apply_keys(obj, subject.keys, fps)
         if subject.flash:
             flashed += apply_flash(subject.name, subject.flash, fps)
+        if subject.run:
+            ran += apply_run(
+                subject.name, obj, subject, subject.run,
+                float(subject.proxy.get("height", 1.7)),
+                float(subject.proxy.get("height", 1.7)) / 8.0, fps)
         if subject.bind:
             bound_n += apply_bind(
                 subject.name, obj, subject.bind,
@@ -1259,4 +1380,5 @@ def build(shot: Shot, style: dict) -> dict:
         "grow": grown,
         "capture": captured,
         "bind": bound_n,
+        "run": ran,
     }
