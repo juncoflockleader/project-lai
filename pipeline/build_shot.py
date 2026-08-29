@@ -218,6 +218,42 @@ def _build_face(name: str, face: dict, head_z: float, unit: float,
                            (0.0, a * 0.62, head_z + unit * 0.30), hair_mat, segments=8)
             hood.scale = (1.0, 0.15, 0.92)
             parts.append(hood)
+        if hair == "short":
+            # 短发。帽子外边再包一圈，两侧到耳下，后面收平。
+            for tag, sx in (("L", -1.0), ("R", 1.0)):
+                parts.append(_box(f"{name}_bin{tag}",
+                                  (unit * 0.30, unit * 1.30, unit * 1.15),
+                                  (sx * a * 0.92, unit * 0.05, head_z - c * 0.10),
+                                  hair_mat))
+            parts.append(_box(f"{name}_houfa", (a * 1.85, unit * 0.34, unit * 1.05),
+                              (0.0, a * 0.80, head_z - c * 0.12), hair_mat))
+
+        if hair == "long":
+            # 黑长直。后面一整块板子垂到腰，不分绺、不做飘动。
+            # 板子要比袍子宽（袍半宽 1.175u），不然从正面完全被躯干挡住。
+            parts.append(_box(f"{name}_changfa",
+                              (unit * 2.70, unit * 0.30, unit * 4.60),
+                              (0.0, a * 0.72, head_z - unit * 1.95), hair_mat))
+            # 脸两边各垂一绺，把脸框住
+            for tag, sx, ln in (("L", -1.0, 2.5), ("R", 1.0, 2.2)):
+                parts.append(_box(f"{name}_liu{tag}",
+                                  (unit * 0.34, unit * 0.34, unit * ln),
+                                  (sx * a * 0.95, -unit * 0.18,
+                                   head_z + c * 0.05 - unit * ln * 0.5), hair_mat))
+
+        if hair == "ponytail":
+            # 单马尾。脑后一个球扎起，一根方条垂下来。
+            #
+            # 要往一侧甩出去。垂在正后方的话，从正面完全被头和躯干挡住，
+            # 渲出来只剩一顶帽子 —— 等于没做。这个错这个项目犯过四次了。
+            parts.append(_sphere(f"{name}_zha", unit * 0.44,
+                                 (-a * 0.55, a * 0.92, head_z + c * 0.26),
+                                 hair_mat, segments=6))
+            wei = _box(f"{name}_wei", (unit * 0.48, unit * 0.48, unit * 3.4),
+                       (-a * 1.30, a * 0.85, head_z - unit * 1.05), hair_mat)
+            wei.rotation_euler = (math.radians(-10.0), math.radians(16.0), 0.0)
+            parts.append(wei)
+
         if hair == "twintail":
             # 双马尾。两边各一串：一个球扎起、一根方条垂下来。通用发型，两边不等长。
             # 要推到袍子外边去。放在 a*1.1 那儿会正好藏在躯干后面 —— 试过。

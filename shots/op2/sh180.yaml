@@ -16,7 +16,7 @@ subjects:
       kind: humanoid
       height: 1.46
       color: [0.94, 0.82, 0.76]
-      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.3, 0.52, 0.86]}
+      face: {eyes: true, brows: true, nose: true, hair: short, hair_color: [0.22, 0.34, 0.56]}
       clothes: {robe: [0.94, 0.95, 0.96], sash: [0.2, 0.38, 0.74], length: short}
       shoes: {color: [0.2, 0.38, 0.74], sole: [0.94, 0.92, 0.88]}
     keys:
