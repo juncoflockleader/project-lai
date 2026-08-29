@@ -1,0 +1,31 @@
+id: sh900
+episode: op2
+title: 出品字幕
+
+duration: 9.0
+
+stage:
+  ground: false
+  world_color: [0.03, 0.03, 0.05]
+  world_strength: 1.0
+
+camera:
+  lens: 50
+  keys:
+    - {t: 0.0, loc: [0.0, -6.6, 0.0], rot: [90.0, 0.0, 0.0]}
+
+subjects:
+  - name: t1
+    proxy: {kind: text, body: "保定美术片重制中心二科", size: 0.26, extrude: 0.02, color: [0.95, 0.94, 0.92]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.95]}
+  - name: t2
+    proxy: {kind: text, body: "出　品", size: 0.2, extrude: 0.02, color: [0.8, 0.79, 0.76]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.35]}
+  - name: t3
+    proxy: {kind: text, body: "本片为二次创作　与原作方无关", size: 0.13, extrude: 0.01, color: [0.52, 0.52, 0.5]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, -0.55]}
+
+notes: 对位原片 77-86 秒的出品方字幕块。权利声明见 docs/SOURCE_MADOKA.md。

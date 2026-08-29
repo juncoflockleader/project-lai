@@ -1,0 +1,25 @@
+id: sh165
+episode: op2
+title: 快切 14
+
+duration: 1.1
+
+
+camera:
+  lens: 50
+  keys:
+    - {t: 0.0, loc: [0.55, -3.4, 1.02], rot: [89.0, 0.0, 0.0]}
+
+subjects:
+  - name: hong
+    proxy:
+      kind: humanoid
+      height: 1.4
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.84, 0.22, 0.24]}
+      clothes: {robe: [0.95, 0.93, 0.93], sash: [0.66, 0.14, 0.16], length: short}
+      shoes: {color: [0.66, 0.14, 0.16], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [0.00, 0.00, 0.00]}
+
+notes: 对位原片 55-77 秒的快切爆发段。全部固定机位，靠剪辑不靠运镜。

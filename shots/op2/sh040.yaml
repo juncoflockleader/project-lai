@@ -1,0 +1,25 @@
+id: sh040
+episode: op2
+title: 开场特写 zi
+
+duration: 0.8
+
+
+camera:
+  lens: 45
+  keys:
+    - {t: 0.0, loc: [0.0, -3.6, 1.04], rot: [89.0, 0.0, 0.0]}
+
+subjects:
+  - name: zi
+    proxy:
+      kind: humanoid
+      height: 1.44
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.56, 0.34, 0.72]}
+      clothes: {robe: [0.94, 0.93, 0.96], sash: [0.42, 0.24, 0.58], length: short}
+      shoes: {color: [0.42, 0.24, 0.58], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [0.00, 0.00, 0.00]}
+
+notes: 对位原片开场四切之一。固定机位。

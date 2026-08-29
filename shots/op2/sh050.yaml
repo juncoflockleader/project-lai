@@ -1,0 +1,27 @@
+id: sh050
+episode: op2
+title: 片名
+
+duration: 2.0
+
+stage:
+  ground: false
+  world_color: [0.03, 0.03, 0.05]
+  world_strength: 1.0
+
+camera:
+  lens: 50
+  keys:
+    - {t: 0.0, loc: [0.0, -6.2, 0.0], rot: [90.0, 0.0, 0.0]}
+
+subjects:
+  - name: pianming
+    proxy: {kind: text, body: "圆来", size: 1.55, extrude: 0.09, color: [0.94, 0.34, 0.52]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.3]}
+  - name: fubiao
+    proxy: {kind: text, body: "YUANLAI", size: 0.32, extrude: 0.02, color: [0.9, 0.88, 0.86]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, -0.92]}
+
+notes: 片名。原片是发光标题，我们是黑体挤出厚度，规格里没有发光。

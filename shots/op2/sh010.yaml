@@ -1,0 +1,25 @@
+id: sh010
+episode: op2
+title: 开场特写 yuan
+
+duration: 3.6
+
+
+camera:
+  lens: 45
+  keys:
+    - {t: 0.0, loc: [0.0, -3.6, 1.04], rot: [89.0, 0.0, 0.0]}
+
+subjects:
+  - name: yuan
+    proxy:
+      kind: humanoid
+      height: 1.42
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.94, 0.52, 0.66]}
+      clothes: {robe: [0.96, 0.96, 0.94], sash: [0.9, 0.24, 0.42], length: short}
+      shoes: {color: [0.9, 0.24, 0.42], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [0.00, 0.00, 0.00]}
+
+notes: 对位原片开场四切之一。固定机位。

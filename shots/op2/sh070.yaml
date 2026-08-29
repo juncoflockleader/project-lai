@@ -1,0 +1,71 @@
+id: sh070
+episode: op2
+title: 长镜头 2
+
+duration: 11.3
+
+
+camera:
+  lens: 35
+  keys:
+    - {t: 0.0, loc: [0.0, -5.6, 1.22], rot: [87.0, 0.0, 0.0]}
+    - {t: 11.3, loc: [0.0, -5.1, 1.18], rot: [87.0, 0.0, 0.0]}
+
+subjects:
+  - name: yuan
+    proxy:
+      kind: humanoid
+      height: 1.42
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.94, 0.52, 0.66]}
+      clothes: {robe: [0.96, 0.96, 0.94], sash: [0.9, 0.24, 0.42], length: short}
+      shoes: {color: [0.9, 0.24, 0.42], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [-2.30, 0.00, 0.00]}
+  - name: lan
+    proxy:
+      kind: humanoid
+      height: 1.46
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.3, 0.52, 0.86]}
+      clothes: {robe: [0.94, 0.95, 0.96], sash: [0.2, 0.38, 0.74], length: short}
+      shoes: {color: [0.2, 0.38, 0.74], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [-1.15, 0.50, 0.00]}
+  - name: huang
+    proxy:
+      kind: humanoid
+      headless: true            # 科长说黄的那个没头
+      height: 1.5
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.92, 0.8, 0.26]}
+      clothes: {robe: [0.96, 0.95, 0.9], sash: [0.78, 0.62, 0.14], length: short}
+      shoes: {color: [0.78, 0.62, 0.14], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [0.00, 0.00, 0.00]}
+  - name: hong
+    proxy:
+      kind: humanoid
+      height: 1.4
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.84, 0.22, 0.24]}
+      clothes: {robe: [0.95, 0.93, 0.93], sash: [0.66, 0.14, 0.16], length: short}
+      shoes: {color: [0.66, 0.14, 0.16], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [1.15, 0.50, 0.00]}
+  - name: zi
+    proxy:
+      kind: humanoid
+      height: 1.44
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.56, 0.34, 0.72]}
+      clothes: {robe: [0.94, 0.93, 0.96], sash: [0.42, 0.24, 0.58], length: short}
+      shoes: {color: [0.42, 0.24, 0.58], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [1.90, 0.00, 0.00]}
+  - name: zimu
+    proxy: {kind: text, body: "分　镜　合同工　月入2300", size: 0.215, extrude: 0.014, color: [0.98, 0.97, 0.95]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 1.95]}
+
+notes: 对位原片 10-55 秒的长镜头段：单镜头 10 秒上下，职员字幕叠在上面。

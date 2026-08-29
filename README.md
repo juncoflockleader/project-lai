@@ -52,6 +52,16 @@ make all                                   # 渲全部
 Blender 不在默认路径就 `make render BLENDER=/path/to/blender`。
 本机验过的版本是 Blender 5.2 LTS。
 
+## 重制目标
+
+| 目标 | 状态 | 权利边界 |
+|---|---|---|
+| 葫芦娃 第一集 + 片头 | 15 个镜头 86 秒 | [docs/SOURCE_HULUWA.md](docs/SOURCE_HULUWA.md) |
+| 圆来 片头 | 29 个镜头 90 秒 | [docs/SOURCE_MADOKA.md](docs/SOURCE_MADOKA.md) |
+
+两个目标都只从原作取**节拍和时长**，画面、片名、职员表全部自己做，
+原片素材一帧不用。参考文件放 `dianyinglai/`，在 `.gitignore` 里，不入库。
+
 ## 目录
 
 ```

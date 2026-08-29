@@ -218,6 +218,17 @@ def _build_face(name: str, face: dict, head_z: float, unit: float,
                            (0.0, a * 0.62, head_z + unit * 0.30), hair_mat, segments=8)
             hood.scale = (1.0, 0.15, 0.92)
             parts.append(hood)
+        if hair == "twintail":
+            # 双马尾。两边各一串：一个球扎起、一根方条垂下来。通用发型，两边不等长。
+            # 要推到袍子外边去。放在 a*1.1 那儿会正好藏在躯干后面 —— 试过。
+            for tag, sx, ln in (("L", -1.0, 2.6), ("R", 1.0, 2.2)):
+                parts.append(_sphere(f"{name}_zha{tag}", unit * 0.38,
+                                     (sx * a * 1.55, -unit * 0.10, head_z + c * 0.22),
+                                     hair_mat, segments=6))
+                parts.append(_box(f"{name}_wei{tag}",
+                                  (unit * 0.40, unit * 0.40, unit * ln),
+                                  (sx * a * 1.62, -unit * 0.10,
+                                   head_z + c * 0.10 - unit * ln * 0.5), hair_mat))
         if hair == "elder":
             # 两鬓各一撮，塞进头侧里，只露一点边，不对称
             for side, sx, sdz, sh in (("L", -1.0, -unit * 0.20, 0.66),
@@ -517,7 +528,12 @@ def _proxy_humanoid(name: str, spec: dict) -> bpy.types.Object:
     if shoes and spec.get("lower") != "tail":
         parts += _build_shoes(name, shoes, unit)
 
-    if face:
+    if spec.get("headless"):
+        # 没有头。科长说黄的那个我记得没头，也可以直接把头去了，还省钱。
+        # 确实省：一个带脸的头（球 + 眼白眼珠 + 眉毛 + 鼻子 + 头发）是这套
+        # 代理里最贵的一块。头顶按脖子根算，帽子之类还能照挂。
+        head_top = height - unit * 1.55
+    elif face:
         # 有脸的头是低段数的球：有弧度，但段数低到能看见棱。
         # 和葫芦用的是同一招（八段球），保证全片的"圆"是同一种圆。
         head_r = unit * 0.92

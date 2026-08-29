@@ -1,0 +1,27 @@
+id: sh910
+episode: op2
+title: 片尾定版
+
+duration: 3.8
+
+stage:
+  ground: false
+  world_color: [0.03, 0.03, 0.05]
+  world_strength: 1.0
+
+camera:
+  lens: 50
+  keys:
+    - {t: 0.0, loc: [0.0, -6.2, 0.0], rot: [90.0, 0.0, 0.0]}
+
+subjects:
+  - name: pianming
+    proxy: {kind: text, body: "圆来", size: 1.35, extrude: 0.08, color: [0.94, 0.34, 0.52]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.2]}
+  - name: jishu
+    proxy: {kind: text, body: "第一话　我们科决定重制这个", size: 0.15, extrude: 0.01, color: [0.86, 0.85, 0.82]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, -0.85]}
+
+notes: 对位原片 86-89.8 秒的片尾定版。
