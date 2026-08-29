@@ -32,7 +32,7 @@ except ModuleNotFoundError:  # Python 3.9 / 3.10
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_STYLE = os.path.join(REPO_ROOT, "style", "niulai.toml")
 
-VALID_PROXY_KINDS = {"humanoid", "gourd", "vine", "rock", "tree", "snake", "box"}
+VALID_PROXY_KINDS = {"humanoid", "gourd", "vine", "text", "rock", "tree", "snake", "box"}
 VALID_SPRAY_KINDS = {"fire", "water", "needle"}
 
 
@@ -110,6 +110,8 @@ class Shot:
     dialogue: list[Line] = field(default_factory=list)
     notes: str = ""
     source_path: str = ""
+    # 舞台设置。{ground: bool, ground_color: [r,g,b]}。字卡镜头要黑底没地面
+    stage: dict[str, Any] = field(default_factory=dict)
 
     def frame_count(self, fps: int) -> int:
         return max(1, round(self.duration * fps))
@@ -332,6 +334,7 @@ def load_shot(path: str) -> Shot:
         dialogue=dialogue,
         notes=str(raw.get("notes", "")),
         source_path=path,
+        stage=raw.get("stage") or {},
     )
 
 
@@ -374,6 +377,7 @@ def shot_to_dict(shot: Shot) -> dict[str, Any]:
         "duration": shot.duration,
         "notes": shot.notes,
         "source_path": shot.source_path,
+        "stage": shot.stage,
         "camera": {
             "lens": shot.camera.lens,
             "keys": [_key_to_dict(k) for k in shot.camera.keys],
@@ -446,6 +450,7 @@ def shot_from_dict(raw: dict[str, Any]) -> Shot:
         ],
         notes=raw.get("notes", ""),
         source_path=raw.get("source_path", ""),
+        stage=raw.get("stage") or {},
     )
 
 

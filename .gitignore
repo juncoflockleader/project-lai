@@ -18,3 +18,8 @@ venv/
 
 # 系统
 .DS_Store
+
+# 参考用的原片。绝不入库 —— 上美影的著作权，
+# 且本仓库公开。见 docs/SOURCE_HULUWA.md「权利」一节。
+dianyinglai/
+*.mp4.part

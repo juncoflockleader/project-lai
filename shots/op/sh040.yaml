@@ -1,0 +1,26 @@
+id: sh040
+episode: op
+title: 大娃特写
+duration: 2.4
+
+camera:
+  lens: 50
+  keys:
+    - {t: 0.0, loc: [0.0, -4.30, 1.02], rot: [89.0, 0.0, 0.0]}
+
+subjects:
+  - name: wa1
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.78, 0.14, 0.12], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.78, 0.14, 0.12]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.0]}
+    grow: {at: [0.6], dur: 1.4, scale: 1.35}
+
+notes: 对位原片 10.5-17.5 秒的角色特写。固定机位，不推不摇。

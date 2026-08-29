@@ -1,0 +1,105 @@
+id: sh030
+episode: op
+title: 七娃列队
+duration: 2.0
+
+camera:
+  lens: 35
+  keys:
+    - {t: 0.0, loc: [0.0, -7.4, 1.55], rot: [87.0, 0.0, 0.0]}
+    - {t: 2.0, loc: [0.0, -6.8, 1.50], rot: [87.0, 0.0, 0.0]}
+
+subjects:
+  # 大娃
+  - name: wa1
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.78, 0.14, 0.12], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.78, 0.14, 0.12]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [-1.35, -0.35, 0.00]}
+  # 二娃
+  - name: wa2
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.88, 0.48, 0.08], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.88, 0.48, 0.08]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [-0.45, -0.35, 0.00]}
+  # 三娃
+  - name: wa3
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.92, 0.82, 0.1], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.92, 0.82, 0.1]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [0.45, -0.35, 0.00]}
+  # 四娃
+  - name: wa4
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.2, 0.62, 0.22], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.2, 0.62, 0.22]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [1.35, -0.35, 0.00]}
+  # 五娃
+  - name: wa5
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.16, 0.66, 0.62], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.16, 0.66, 0.62]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [-0.90, 1.55, 0.00]}
+  # 六娃
+  - name: wa6
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.14, 0.32, 0.78], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.14, 0.32, 0.78]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [0.00, 1.55, 0.00]}
+  # 七娃
+  - name: wa7
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.52, 0.18, 0.68], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.52, 0.18, 0.68]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [0.90, 1.55, 0.00]}
+
+notes: 对位原片 8.5-10.5 秒的列队。前四后三，后排垫高，是我们自己的排法。

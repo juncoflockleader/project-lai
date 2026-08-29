@@ -1,0 +1,120 @@
+id: sh080
+episode: op
+title: 演职员表
+
+duration: 17.0
+
+camera:
+  lens: 35
+  keys:
+    - {t: 0.0, loc: [0.0, -7.2, 1.70], rot: [86.0, 0.0, 0.0]}
+
+subjects:
+  # 大娃
+  - name: wa1
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.78, 0.14, 0.12], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.78, 0.14, 0.12]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [-1.35, -0.35, 0.00]}
+  # 二娃
+  - name: wa2
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.88, 0.48, 0.08], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.88, 0.48, 0.08]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [-0.45, -0.35, 0.00]}
+  # 三娃
+  - name: wa3
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.92, 0.82, 0.1], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.92, 0.82, 0.1]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [0.45, -0.35, 0.00]}
+  # 四娃
+  - name: wa4
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.2, 0.62, 0.22], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.2, 0.62, 0.22]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [1.35, -0.35, 0.00]}
+  # 五娃
+  - name: wa5
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.16, 0.66, 0.62], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.16, 0.66, 0.62]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [-0.90, 1.55, 0.00]}
+  # 六娃
+  - name: wa6
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.14, 0.32, 0.78], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.14, 0.32, 0.78]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [0.00, 1.55, 0.00]}
+  # 七娃
+  - name: wa7
+    proxy:
+      kind: humanoid
+      height: 1.15
+      color: [0.86, 0.68, 0.55]
+      face: {eyes: true, brows: true, nose: true, hair: plain, hair_color: [0.12, 0.11, 0.12]}
+      clothes: {robe: [0.52, 0.18, 0.68], sash: [0.22, 0.42, 0.20], length: short, sleeves: false}
+      hat: gourd
+      hat_color: [0.52, 0.18, 0.68]
+      hat_scale: 0.24
+    keys:
+      - {t: 0.0, loc: [0.90, 1.55, 0.00]}
+  # 字幕：从下往上匀速滚
+  - name: zimu
+    proxy:
+      kind: text
+      body: "出　品　保定美术片重制中心二科\n监　制　科　长\n分　镜　合同工　月入2300\n建　模　合同工\n运　镜　合同工\n审　核　科　长\n资料室　穿山甲　编内\n渲染机　二手　主板未烧\n原　作　葫芦兄弟　1986\n本片与上海美术电影制片厂无关"
+      size: 0.115
+      extrude: 0.008
+      color: [0.96, 0.95, 0.90]
+      line_spacing: 1.30
+    keys:
+      # 字幕是 3D 物体，不是 2D 叠加：z 低于 0 就沉到地面以下被挡住了
+      - {t: 0.0, loc: [0.0, -3.4, 0.10]}
+      - {t: 17.0, loc: [0.0, -3.4, 3.05]}
+
+notes: |
+  对位原片 26-43 秒的演职员表段：固定机位，字幕压在列队上匀速上滚。
+  演职员表是本项目自己的，不是原片的。

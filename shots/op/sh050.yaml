@@ -1,0 +1,33 @@
+id: sh050
+episode: op
+title: 蛇精特写
+duration: 2.4
+
+camera:
+  lens: 50
+  keys:
+    - {t: 0.0, loc: [0.0, -3.60, 1.20], rot: [89.0, 0.0, 0.0]}
+
+subjects:
+  - name: shejing
+    proxy:
+      kind: humanoid
+      height: 1.72
+      color: [0.70, 0.74, 0.58]
+      lower: tail
+      lower_color: [0.26, 0.46, 0.30]
+      face:
+        eyes: true
+        pupil: slit
+        brows: true
+        nose: true
+        chin: pointed
+        hair: hood
+        fangs: true
+        hair_color: [0.17, 0.31, 0.21]
+      clothes: {robe: [0.23, 0.40, 0.27], sash: [0.11, 0.19, 0.13], length: short}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.0]}
+    flash: [0.8, 1.5]
+
+notes: 对位原片 10.5-17.5 秒的角色特写。固定机位，不推不摇。

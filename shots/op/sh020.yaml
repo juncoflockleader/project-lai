@@ -1,0 +1,35 @@
+id: sh020
+episode: op
+title: 山空镜
+duration: 3.0
+
+camera:
+  lens: 35
+  keys:
+    - {t: 0.0, loc: [0.0, -12.0, 2.60], rot: [86.0, 0.0, 0.0]}
+    - {t: 3.0, loc: [0.0, -10.6, 2.45], rot: [86.0, 0.0, 0.0]}
+
+subjects:
+  - name: shan1
+    proxy: {kind: rock, scale: 5.2, color: [0.46, 0.48, 0.44]}
+    keys: [{t: 0.0, loc: [-5.6, 9.0, 0.0]}]
+  - name: shan2
+    proxy: {kind: rock, scale: 7.0, color: [0.39, 0.42, 0.39]}
+    keys: [{t: 0.0, loc: [-1.0, 12.0, 0.0]}]
+  - name: shan3
+    proxy: {kind: rock, scale: 5.8, color: [0.43, 0.45, 0.42]}
+    keys: [{t: 0.0, loc: [4.6, 10.0, 0.0]}]
+  - name: shan4
+    proxy: {kind: rock, scale: 3.6, color: [0.50, 0.51, 0.46]}
+    keys: [{t: 0.0, loc: [7.8, 6.5, 0.0]}]
+  - name: teng
+    proxy: {kind: vine, width: 4.6, height: 2.45, stems: 7}
+    keys: [{t: 0.0, loc: [-0.4, 1.2, 0.0]}]
+  - name: shu1
+    proxy: {kind: tree, height: 3.2}
+    keys: [{t: 0.0, loc: [-5.4, 2.4, 0.0]}]
+  - name: shu2
+    proxy: {kind: tree, height: 2.6, color: [0.26, 0.40, 0.16]}
+    keys: [{t: 0.0, loc: [5.2, 3.0, 0.0]}]
+
+notes: 对位原片 5.5-8.5 秒的山水空镜。直线推，不摇。

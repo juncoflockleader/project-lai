@@ -598,6 +598,35 @@ def _gourd_parts(name: str, color: tuple, scale: float,
     return parts
 
 
+def _proxy_text(name: str, spec: dict) -> bpy.types.Object:
+    """一行字。用系统字体挤出厚度 —— SketchUp 出字就是这个样子。
+
+    不做描边、不做渐变、不做发光。规格里没有这些东西。
+    """
+    curve = bpy.data.curves.new(name=name, type="FONT")
+    curve.body = str(spec.get("body", ""))
+    curve.size = float(spec.get("size", 1.0))
+    curve.extrude = float(spec.get("extrude", 0.04))
+    curve.align_x = spec.get("align", "CENTER").upper()
+    curve.align_y = "CENTER"
+    curve.space_line = float(spec.get("line_spacing", 1.15))
+
+    font_path = spec.get("font", "/System/Library/Fonts/STHeiti Medium.ttc")
+    if os.path.exists(font_path):
+        try:
+            curve.font = bpy.data.fonts.load(font_path)
+        except RuntimeError:
+            pass                       # 载不上就退回内置字体，中文会变方框，但不崩
+
+    obj = bpy.data.objects.new(name, curve)
+    bpy.context.scene.collection.objects.link(obj)
+    obj.data.materials.append(
+        _material(f"{name}_se", tuple(spec.get("color", [0.94, 0.94, 0.92]))))
+    # 立起来面对摄影机（摄影机在 -Y 看向 +Y）
+    obj.rotation_euler = (math.radians(90.0), 0.0, 0.0)
+    return obj
+
+
 def _proxy_vine(name: str, spec: dict) -> bpy.types.Object:
     """葫芦藤。两根立柱、一道横梁、几根垂下来的藤，外加几片叶子。
 
@@ -672,6 +701,7 @@ def _proxy_box(name: str, spec: dict) -> bpy.types.Object:
 PROXY_BUILDERS = {
     "humanoid": _proxy_humanoid,
     "vine": _proxy_vine,
+    "text": _proxy_text,
     "gourd": _proxy_gourd,
     "rock": _proxy_rock,
     "tree": _proxy_tree,
@@ -694,9 +724,13 @@ def build_subject(subject: Subject) -> bpy.types.Object:
 
     kind = subject.proxy.get("kind", "box")
     builder = PROXY_BUILDERS.get(kind, _proxy_box)
+    obj = builder(subject.name, subject.proxy)
+    if obj.type != "MESH":
+        # 文字是曲线不是网格：原点本来就在字的中心，不能归到脚底
+        return obj
     # 只对代理做原点归零；链进来的资产按作者摆的原点走。
     # 先烘缩放再挪原点 —— 顺序反了原点会算在旧的缩放空间里。
-    return _origin_to_base(_apply_scale(builder(subject.name, subject.proxy)))
+    return _origin_to_base(_apply_scale(obj))
 
 
 # --------------------------------------------------------------------------
@@ -717,12 +751,12 @@ def apply_keys(obj: bpy.types.Object, keys: list[Key], fps: int) -> None:
             obj.keyframe_insert("scale", frame=frame)
 
 
-def add_ground(size: float = 60.0) -> bpy.types.Object:
+def add_ground(size: float = 60.0, color: tuple = (0.45, 0.52, 0.28)) -> bpy.types.Object:
     """一块地。纯色，无限大，没有起伏。"""
     bpy.ops.mesh.primitive_plane_add(size=size, location=(0, 0, 0))
     ground = bpy.context.active_object
     ground.name = "di"
-    ground.data.materials.append(_material("di_se", (0.45, 0.52, 0.28)))
+    ground.data.materials.append(_material("di_se", color))
     return ground
 
 
@@ -1099,7 +1133,9 @@ def build(shot: Shot, style: dict) -> dict:
     scene.frame_start = 0
     scene.frame_end = shot.frame_count(fps)
 
-    add_ground()
+    stage = shot.stage or {}
+    if stage.get("ground", True):
+        add_ground(color=tuple(stage.get("ground_color", [0.45, 0.52, 0.28])))
 
     objs: dict[str, bpy.types.Object] = {}
     proxied: list[str] = []

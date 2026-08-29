@@ -1,0 +1,29 @@
+id: sh060
+episode: op
+title: 爷爷特写
+duration: 2.4
+
+camera:
+  lens: 50
+  keys:
+    - {t: 0.0, loc: [0.0, -3.40, 1.10], rot: [89.0, 0.0, 0.0]}
+
+subjects:
+  - name: yeye
+    proxy:
+      kind: humanoid
+      height: 1.62
+      color: [0.62, 0.48, 0.36]
+      face:
+        eyes: true
+        brows: true
+        nose: true
+        hair: elder
+        beard: long
+        hair_color: [0.93, 0.93, 0.91]
+      clothes: {robe: [0.44, 0.50, 0.56], sash: [0.34, 0.25, 0.17], length: long}
+      shoes: {color: [0.16, 0.15, 0.14], sole: [0.86, 0.84, 0.78]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.0]}
+
+notes: 对位原片 10.5-17.5 秒的角色特写。固定机位，不推不摇。

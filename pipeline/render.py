@@ -63,6 +63,13 @@ def main() -> int:
     if built["proxied"]:
         print(f"[lai] 用积木代理的：{', '.join(built['proxied'])}")
 
+    # 字卡镜头要黑底：按镜头覆盖世界颜色
+    stage = shot.stage or {}
+    if stage.get("world_color"):
+        style = {**style, "light": {**style["light"],
+                                    "world_color": stage["world_color"],
+                                    "world_strength": stage.get("world_strength", 1.0)}}
+
     applied = degrade.apply_all(bpy.context.scene, style)
     print(
         f"[lai] 画质规格已施加：{applied['engine']} "

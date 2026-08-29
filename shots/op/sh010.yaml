@@ -1,0 +1,42 @@
+id: sh010
+episode: op
+title: 出品字卡
+duration: 5.5
+
+stage:
+  ground: false
+  world_color: [0.02, 0.02, 0.03]
+  world_strength: 1.0
+
+camera:
+  lens: 50
+  keys:
+    - {t: 0.0, loc: [0.0, -6.0, 0.0], rot: [90.0, 0.0, 0.0]}
+
+subjects:
+  - name: danwei
+    proxy:
+      kind: text
+      body: "保定美术片重制中心二科"
+      size: 0.30
+      extrude: 0.03
+      color: [0.90, 0.89, 0.85]
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.55]}
+  - name: chupin
+    proxy: {kind: text, body: "出品", size: 0.24, extrude: 0.02, color: [0.72, 0.71, 0.68]}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, -0.20]}
+  - name: fangying
+    proxy:
+      kind: text
+      body: "本片为二次创作 与上海美术电影制片厂无关"
+      size: 0.125
+      extrude: 0.01
+      color: [0.46, 0.46, 0.44]
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, -1.15]}
+
+notes: |
+  黑底字卡。对位原片 0-5.5 秒的出品方字卡位置。
+  第三行是权利声明，见 docs/SOURCE_HULUWA.md。
