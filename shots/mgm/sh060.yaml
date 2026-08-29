@@ -1,0 +1,65 @@
+id: sh060
+episode: mgm
+title: 葫芦穹顶
+
+duration: 6.0
+
+stage:
+  world_color: [0.22, 0.11, 0.30]
+  world_strength: 0.7
+  ground_color: [0.46, 0.09, 0.26]
+
+camera:
+  lens: 20
+  keys:
+    # 抬头看穹顶。注意本项目的约定：rot X = 90 是水平，**大于 90 才是仰视**，
+    # 小于 90 是俯视。给 58 会拍一地影子。只准直线推。
+    # 仰角别给太大：拍满一屏葫芦反而看不出是穹顶，得留出地平线和人当参照
+    - {t: 0.0, loc: [0.0, -7.0, 1.35], rot: [101.0, 0.0, 0.0]}
+    - {t: 6.0, loc: [0.0, -4.6, 1.45], rot: [101.0, 0.0, 0.0]}
+
+subjects:
+  - name: qiongding
+    proxy: {kind: gourd, color: [0.78, 0.14, 0.12], scale: 1.25, eyes: true}
+    array:
+      count: 1800
+      shape: dome
+      radius: 22.0
+      center: [0.0, 4.0, -1.5]
+      face_out: true
+      # 七色。材质挂在网格上，所以这里建七份网格，实例轮着用。
+      colors:
+        - [0.78, 0.14, 0.12]
+        - [0.88, 0.48, 0.08]
+        - [0.92, 0.82, 0.10]
+        - [0.20, 0.62, 0.22]
+        - [0.16, 0.66, 0.62]
+        - [0.14, 0.32, 0.78]
+        - [0.52, 0.18, 0.68]
+      jitter: {z: 0.03}
+      fire:
+        count: 60
+        at: 1.0
+        dur: 1.6
+        stagger: 3.2
+        scale: 2.2
+        unit: 0.26
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.0]}
+
+  - name: yuan
+    proxy:
+      kind: humanoid
+      height: 1.42
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.94, 0.52, 0.66]}
+      clothes: {robe: [0.96, 0.96, 0.94], sash: [0.90, 0.24, 0.42], length: short}
+      shoes: {color: [0.86, 0.30, 0.44], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [0.0, -1.4, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 6.0, loc: [0.0, -1.4, 0.0], rot: [0.0, 0.0, 0.0]}
+
+notes: |
+  一千八百个七色葫芦铺成天上的穹顶，斐波那契半球，算出来的不是随机的。
+  六十个在喷火，起火时间用序号错开。
+  葫芦共享网格（七色 = 七份），火不能共享关键帧，所以火的数量单独给。
