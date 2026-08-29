@@ -749,6 +749,15 @@ def _proxy_snake(name: str, spec: dict) -> bpy.types.Object:
     return _join(parts, name)
 
 
+def _proxy_spike(name: str, spec: dict) -> bpy.types.Object:
+    """一根尖锥。牙、刺、塔尖都用它。段数给到 5，棱看得见。"""
+    h = float(spec.get("height", 1.0))
+    r = float(spec.get("radius", 0.28))
+    return _cone(name, r_top=r * 0.04, r_bottom=r, depth=h, loc=(0.0, 0.0, h * 0.5),
+                 material=_material(f"{name}_se", tuple(spec.get("color", [0.86, 0.86, 0.84]))),
+                 vertices=int(spec.get("vertices", 5)))
+
+
 def _proxy_box(name: str, spec: dict) -> bpy.types.Object:
     size = spec.get("size", [1.0, 1.0, 1.0])
     color = tuple(spec.get("color", [0.6, 0.6, 0.6]))
@@ -759,6 +768,7 @@ PROXY_BUILDERS = {
     "humanoid": _proxy_humanoid,
     "vine": _proxy_vine,
     "text": _proxy_text,
+    "spike": _proxy_spike,
     "gourd": _proxy_gourd,
     "rock": _proxy_rock,
     "tree": _proxy_tree,

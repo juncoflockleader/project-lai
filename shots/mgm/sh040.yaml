@@ -1,0 +1,92 @@
+id: sh040
+episode: mgm
+title: 魔女
+
+duration: 4.5
+
+stage:
+  world_color: [0.30, 0.16, 0.36]
+  world_strength: 0.75
+  ground_color: [0.58, 0.12, 0.30]
+
+camera:
+  lens: 30
+  keys:
+    - {t: 0.0, loc: [0.0, -10.5, 3.0], rot: [85.0, 0.0, 0.0]}
+
+subjects:
+  # 身子：一个巨大的、歪着的方块
+  - name: shen
+    proxy: {kind: box, size: [5.4, 3.0, 4.2], color: [0.20, 0.09, 0.26]}
+    keys:
+      - {t: 0.0, loc: [0.3, 5.0, 0.0], rot: [0.0, 7.0, -5.0]}
+  # 头：一个葫芦，和身子不接，浮在上面
+  - name: tou
+    proxy: {kind: gourd, color: [0.90, 0.84, 0.26], scale: 3.2, eyes: true}
+    keys:
+      - {t: 0.0, loc: [0.1, 4.4, 4.05], rot: [0.0, 0.0, -12.0]}
+      - {t: 4.5, loc: [0.1, 4.4, 4.35], rot: [0.0, 0.0, -12.0]}
+  - name: zhi0
+    proxy: {kind: spike, height: 2.4, radius: 0.34, color: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [-3.4, 3.6, 3.2], rot: [0.0, -28, 0.0]}
+  - name: zhi1
+    proxy: {kind: spike, height: 1.8, radius: 0.34, color: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [-2.0, 3.9, 4.6], rot: [0.0, -14, 0.0]}
+  - name: zhi2
+    proxy: {kind: spike, height: 2.0, radius: 0.34, color: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [2.2, 4.2, 4.4], rot: [0.0, 16, 0.0]}
+  - name: zhi3
+    proxy: {kind: spike, height: 2.6, radius: 0.34, color: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [3.6, 4.5, 3.0], rot: [0.0, 30, 0.0]}
+  - name: zhi4
+    proxy: {kind: spike, height: 1.5, radius: 0.34, color: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [0.2, 4.8, 5.9], rot: [0.0, 0, 0.0]}
+  - name: zhi5
+    proxy: {kind: spike, height: 1.9, radius: 0.34, color: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [-4.4, 5.1, 1.6], rot: [0.0, -42, 0.0]}
+  - name: zhi6
+    proxy: {kind: spike, height: 1.7, radius: 0.34, color: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [4.6, 5.4, 1.4], rot: [0.0, 44, 0.0]}
+  - name: yan0
+    proxy: {kind: gourd, color: [0.86, 0.80, 0.24], scale: 0.7, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-1.9, 2.6, 2.3], rot: [0.0, 0.0, -25]}
+  - name: yan1
+    proxy: {kind: gourd, color: [0.86, 0.80, 0.24], scale: 0.7, eyes: true}
+    keys:
+      - {t: 0.0, loc: [1.6, 2.6, 2.7], rot: [0.0, 0.0, -8]}
+  - name: yan2
+    proxy: {kind: gourd, color: [0.86, 0.80, 0.24], scale: 0.7, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-0.6, 2.6, 3.6], rot: [0.0, 0.0, 9]}
+  - name: yan3
+    proxy: {kind: gourd, color: [0.86, 0.80, 0.24], scale: 0.7, eyes: true}
+    keys:
+      - {t: 0.0, loc: [2.6, 2.6, 1.9], rot: [0.0, 0.0, -24]}
+  - name: yan4
+    proxy: {kind: gourd, color: [0.86, 0.80, 0.24], scale: 0.7, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-3.0, 2.6, 2.0], rot: [0.0, 0.0, -7]}
+  - name: yuan
+    proxy:
+      kind: humanoid
+      height: 1.42
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.94, 0.52, 0.66]}
+      clothes: {robe: [0.96, 0.96, 0.94], sash: [0.90, 0.24, 0.42], length: short}
+      shoes: {color: [0.86, 0.30, 0.44], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [-1.20, 0.00, 0.00], rot: [0.0, 0.0, 0.0]}
+      - {t: 4.5, loc: [-0.90, 0.00, 0.00], rot: [0.0, 0.0, 0.0]}
+
+notes: |
+  魔女本体。全部用现成零件拼错：身子是个歪方块，头是个葫芦但和身子不接，
+  肢是尖锥，随便插，长短不一角度不一，外加五只散落的眼睛。
+  规格里没有透明没有贴图，做不了拼贴 —— 能做的是尺度错乱和零件拼错。

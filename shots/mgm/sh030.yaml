@@ -1,0 +1,62 @@
+id: sh030
+episode: mgm
+title: 巨物
+
+duration: 4.0
+
+stage:
+  world_color: [0.30, 0.16, 0.36]
+  world_strength: 0.75
+  ground_color: [0.58, 0.12, 0.30]
+
+camera:
+  lens: 35
+  keys:
+    - {t: 0.0, loc: [0.0, -11.0, 3.2], rot: [84.0, 0.0, 0.0]}
+    - {t: 4.0, loc: [0.0, -9.0, 3.4], rot: [84.0, 0.0, 0.0]}
+
+subjects:
+  - name: juwu
+    proxy: {kind: gourd, color: [0.88, 0.80, 0.22], scale: 5.8, eyes: true}
+    keys:
+      - {t: 0.0, loc: [0.0, 6.0, 1.00], rot: [0.0, 0.0, 8.0]}
+      - {t: 4.0, loc: [0.0, 6.0, 0.70], rot: [0.0, 0.0, 8.0]}
+  - name: ci0
+    proxy: {kind: spike, height: 5.46, radius: 0.57, color: [0.92, 0.90, 0.86]}
+    keys:
+      - {t: 0.0, loc: [-5.2, 2.5, 0.0], rot: [0.0, -11, 0.0]}
+  - name: ci1
+    proxy: {kind: spike, height: 3.57, radius: 0.68, color: [0.92, 0.90, 0.86]}
+    keys:
+      - {t: 0.0, loc: [-3.0, 3.1, 0.0], rot: [0.0, 0, 0.0]}
+  - name: ci2
+    proxy: {kind: spike, height: 4.62, radius: 0.80, color: [0.92, 0.90, 0.86]}
+    keys:
+      - {t: 0.0, loc: [3.2, 3.7, 0.0], rot: [0.0, 11, 0.0]}
+  - name: ci3
+    proxy: {kind: spike, height: 2.94, radius: 0.91, color: [0.92, 0.90, 0.86]}
+    keys:
+      - {t: 0.0, loc: [5.6, 4.3, 0.0], rot: [0.0, -1, 0.0]}
+  - name: ci4
+    proxy: {kind: spike, height: 2.31, radius: 1.03, color: [0.92, 0.90, 0.86]}
+    keys:
+      - {t: 0.0, loc: [-6.8, 4.9, 0.0], rot: [0.0, 10, 0.0]}
+  - name: ci5
+    proxy: {kind: spike, height: 3.99, radius: 1.14, color: [0.92, 0.90, 0.86]}
+    keys:
+      - {t: 0.0, loc: [7.0, 5.5, 0.0], rot: [0.0, -2, 0.0]}
+  - name: yuan
+    proxy:
+      kind: humanoid
+      height: 1.42
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.94, 0.52, 0.66]}
+      clothes: {robe: [0.96, 0.96, 0.94], sash: [0.90, 0.24, 0.42], length: short}
+      shoes: {color: [0.86, 0.30, 0.44], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [-0.80, 0.00, 0.00], rot: [0.0, 0.0, 0.0]}
+      - {t: 4.0, loc: [-0.50, 0.00, 0.00], rot: [0.0, 0.0, 0.0]}
+
+notes: |
+  一个七点五倍大的葫芦悬在空中，睁着眼。底下一圈尖锥。
+  粉的在画面底边，很小。镜头只准直线推。

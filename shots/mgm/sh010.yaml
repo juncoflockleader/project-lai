@@ -1,0 +1,90 @@
+id: sh010
+episode: mgm
+title: 入口
+
+duration: 4.0
+
+stage:
+  world_color: [0.30, 0.16, 0.36]
+  world_strength: 0.75
+  ground_color: [0.58, 0.12, 0.30]
+
+camera:
+  lens: 35
+  keys:
+    - {t: 0.0, loc: [0.0, -9.0, 1.6], rot: [87.0, 0.0, 0.0]}
+    - {t: 4.0, loc: [0.0, -6.6, 1.55], rot: [87.0, 0.0, 0.0]}
+
+subjects:
+  - name: zhu0L
+    proxy: {kind: box, size: [0.9, 0.9, 3.2], color: [0.24, 0.10, 0.30]}
+    keys:
+      - {t: 0.0, loc: [-2.60, 1.50, 0.0], rot: [0.0, -4, -3]}
+  - name: zhu0R
+    proxy: {kind: box, size: [0.9, 0.9, 3.2], color: [0.24, 0.10, 0.30]}
+    keys:
+      - {t: 0.0, loc: [2.60, 1.50, 0.0], rot: [0.0, 4, -3]}
+  - name: zhu1L
+    proxy: {kind: box, size: [0.9, 0.9, 4.6], color: [0.29, 0.10, 0.34]}
+    keys:
+      - {t: 0.0, loc: [-2.95, 3.90, 0.0], rot: [0.0, -6, 3]}
+  - name: zhu1R
+    proxy: {kind: box, size: [0.9, 0.9, 4.6], color: [0.29, 0.10, 0.34]}
+    keys:
+      - {t: 0.0, loc: [2.95, 3.90, 0.0], rot: [0.0, 6, 3]}
+  - name: zhu2L
+    proxy: {kind: box, size: [0.9, 0.9, 6.0], color: [0.34, 0.10, 0.30]}
+    keys:
+      - {t: 0.0, loc: [-3.30, 6.30, 0.0], rot: [0.0, -8, -3]}
+  - name: zhu2R
+    proxy: {kind: box, size: [0.9, 0.9, 6.0], color: [0.34, 0.10, 0.30]}
+    keys:
+      - {t: 0.0, loc: [3.30, 6.30, 0.0], rot: [0.0, 8, -3]}
+  - name: zhu3L
+    proxy: {kind: box, size: [0.9, 0.9, 3.2], color: [0.24, 0.10, 0.34]}
+    keys:
+      - {t: 0.0, loc: [-3.65, 8.70, 0.0], rot: [0.0, -4, 3]}
+  - name: zhu3R
+    proxy: {kind: box, size: [0.9, 0.9, 3.2], color: [0.24, 0.10, 0.34]}
+    keys:
+      - {t: 0.0, loc: [3.65, 8.70, 0.0], rot: [0.0, 4, 3]}
+  - name: zhu4L
+    proxy: {kind: box, size: [0.9, 0.9, 4.6], color: [0.29, 0.10, 0.30]}
+    keys:
+      - {t: 0.0, loc: [-4.00, 11.10, 0.0], rot: [0.0, -6, -3]}
+  - name: zhu4R
+    proxy: {kind: box, size: [0.9, 0.9, 4.6], color: [0.29, 0.10, 0.30]}
+    keys:
+      - {t: 0.0, loc: [4.00, 11.10, 0.0], rot: [0.0, 6, -3]}
+  - name: zhu5L
+    proxy: {kind: box, size: [0.9, 0.9, 6.0], color: [0.34, 0.10, 0.34]}
+    keys:
+      - {t: 0.0, loc: [-4.35, 13.50, 0.0], rot: [0.0, -8, 3]}
+  - name: zhu5R
+    proxy: {kind: box, size: [0.9, 0.9, 6.0], color: [0.34, 0.10, 0.34]}
+    keys:
+      - {t: 0.0, loc: [4.35, 13.50, 0.0], rot: [0.0, 8, 3]}
+  - name: zhu6L
+    proxy: {kind: box, size: [0.9, 0.9, 3.2], color: [0.24, 0.10, 0.30]}
+    keys:
+      - {t: 0.0, loc: [-4.70, 15.90, 0.0], rot: [0.0, -4, -3]}
+  - name: zhu6R
+    proxy: {kind: box, size: [0.9, 0.9, 3.2], color: [0.24, 0.10, 0.30]}
+    keys:
+      - {t: 0.0, loc: [4.70, 15.90, 0.0], rot: [0.0, 4, -3]}
+  - name: yuan
+    proxy:
+      kind: humanoid
+      height: 1.42
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.94, 0.52, 0.66]}
+      clothes: {robe: [0.96, 0.96, 0.94], sash: [0.90, 0.24, 0.42], length: short}
+      shoes: {color: [0.86, 0.30, 0.44], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [-2.60, 0.00, 0.00], rot: [0.0, 0.0, 0.0]}
+      - {t: 4.0, loc: [-0.40, 0.00, 0.00], rot: [0.0, 0.0, 0.0]}
+    run: {at: [0.0], dur: 4.0, cycle: 0.52, swing: 30, lean: 10, bob: 0.04}
+
+notes: |
+  迷宫入口。柱子高低不齐、左右歪斜、间距不等 —— 规则重复但每根都错一点。
+  配色和正常世界完全岔开：天暗紫、地深洋红。

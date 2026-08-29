@@ -1,0 +1,145 @@
+id: sh020
+episode: mgm
+title: 重复
+
+duration: 4.0
+
+stage:
+  world_color: [0.30, 0.16, 0.36]
+  world_strength: 0.75
+  ground_color: [0.58, 0.12, 0.30]
+
+camera:
+  lens: 32
+  keys:
+    - {t: 0.0, loc: [0.0, -8.0, 2.4], rot: [87.0, 0.0, 0.0]}
+
+subjects:
+  - name: h00
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-3.60, 2.00, 1.10], rot: [0.0, 0.0, -20]}
+  - name: h01
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-2.40, 2.00, 1.10], rot: [0.0, 0.0, -7]}
+  - name: h02
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-1.20, 2.00, 1.10], rot: [0.0, 0.0, 6]}
+  - name: h03
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-0.00, 2.00, 1.10], rot: [0.0, 0.0, 19]}
+  - name: h04
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [1.20, 2.00, 1.10], rot: [0.0, 0.0, -8]}
+  - name: h05
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [2.40, 2.00, 1.10], rot: [0.0, 0.0, 5]}
+  - name: h06
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [3.60, 2.00, 1.10], rot: [0.0, 0.0, 18]}
+  - name: h10
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-3.60, 3.50, 2.45], rot: [0.0, 0.0, -13]}
+  - name: h11
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-2.40, 3.50, 2.45], rot: [0.0, 0.0, 0]}
+  - name: h12
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-1.20, 3.50, 2.45], rot: [0.0, 0.0, 13]}
+  - name: h13
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-0.00, 3.50, 2.45], rot: [0.0, 0.0, -14]}
+  - name: h14
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [1.20, 3.50, 2.45], rot: [0.0, 0.0, -1]}
+  - name: h15
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [2.40, 3.50, 2.45], rot: [0.0, 0.0, 12]}
+  - name: h16
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [3.60, 3.50, 2.45], rot: [0.0, 0.0, -15]}
+  - name: h20
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-3.60, 5.00, 3.80], rot: [0.0, 0.0, -6]}
+  - name: h21
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-2.40, 5.00, 3.80], rot: [0.0, 0.0, 7]}
+  - name: h22
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-1.20, 5.00, 3.80], rot: [0.0, 0.0, -20]}
+  - name: h23
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-0.00, 5.00, 3.80], rot: [0.0, 0.0, -7]}
+  - name: h24
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [1.20, 5.00, 3.80], rot: [0.0, 0.0, 6]}
+  - name: h25
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [2.40, 5.00, 3.80], rot: [0.0, 0.0, 19]}
+  - name: h26
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [3.60, 5.00, 3.80], rot: [0.0, 0.0, -8]}
+  - name: h30
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-3.60, 6.50, 5.15], rot: [0.0, 0.0, 1]}
+  - name: h31
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-2.40, 6.50, 5.15], rot: [0.0, 0.0, 14]}
+  - name: h32
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-1.20, 6.50, 5.15], rot: [0.0, 0.0, -13]}
+  - name: h33
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [-0.00, 6.50, 5.15], rot: [0.0, 0.0, 0]}
+  - name: h34
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [1.20, 6.50, 5.15], rot: [0.0, 0.0, 13]}
+  - name: h35
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [2.40, 6.50, 5.15], rot: [0.0, 0.0, -14]}
+  - name: h36
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.9, eyes: true}
+    keys:
+      - {t: 0.0, loc: [3.60, 6.50, 5.15], rot: [0.0, 0.0, -1]}
+  - name: yuan
+    proxy:
+      kind: humanoid
+      height: 1.42
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.94, 0.52, 0.66]}
+      clothes: {robe: [0.96, 0.96, 0.94], sash: [0.90, 0.24, 0.42], length: short}
+      shoes: {color: [0.86, 0.30, 0.44], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [-0.20, 0.00, 0.00], rot: [0.0, 0.0, 0.0]}
+      - {t: 4.0, loc: [0.30, 0.00, 0.00], rot: [0.0, 0.0, 0.0]}
+    run: {at: [0.0], dur: 4.0, cycle: 0.60, swing: 22, lean: 6, bob: 0.03}
+
+notes: |
+  二十八个一模一样的葫芦，全都睁着眼，悬在空中排成阵列。
+  「一份建模到处粘」这条，用在这里不是省钱，是恐怖。

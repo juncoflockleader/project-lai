@@ -32,7 +32,7 @@ except ModuleNotFoundError:  # Python 3.9 / 3.10
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_STYLE = os.path.join(REPO_ROOT, "style", "niulai.toml")
 
-VALID_PROXY_KINDS = {"humanoid", "gourd", "vine", "text", "rock", "tree", "snake", "box"}
+VALID_PROXY_KINDS = {"humanoid", "gourd", "vine", "text", "spike", "rock", "tree", "snake", "box"}
 VALID_SPRAY_KINDS = {"fire", "water", "needle"}
 
 
