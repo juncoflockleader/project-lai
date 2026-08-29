@@ -83,6 +83,7 @@ out/                  渲染产物，不进版本库
 | [docs/PIPELINE.md](docs/PIPELINE.md) | 数据流、模块分工、分镜 YAML 字段表 |
 | [docs/SOURCE_HULUWA.md](docs/SOURCE_HULUWA.md) | 原作信息、第一集拆解、**权利边界** |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 提交规矩 |
+| [docs/DECISIONS.md](docs/DECISIONS.md) | 科长历次拍板，带实测数字 |
 
 另外两份是特师体，讲为什么做和做到哪：
 [docs/VISION.md](docs/VISION.md)、[docs/ROADMAP.md](docs/ROADMAP.md)。
