@@ -9,10 +9,11 @@
 
 id: mgm
 title: 魔女迷宫
-target_duration: 16.5
+target_duration: 21.5
 
 beats:
   - {id: b1, name: 入口,   shots: [sh010]}
   - {id: b2, name: 重复,   shots: [sh020]}
   - {id: b3, name: 巨物,   shots: [sh030]}
   - {id: b4, name: 魔女,   shots: [sh040]}
+  - {id: b5, name: 两千八百个葫芦, shots: [sh050]}

@@ -74,6 +74,9 @@ class Subject:
     bind: dict[str, Any] = field(default_factory=dict)
     # 跑。{at: [秒...], dur, cycle, swing, bob}。腿会拆出来单独摆
     run: dict[str, Any] = field(default_factory=dict)
+    # 阵列。{count, grid: [列,行], spacing, origin, jitter}。
+    # 建一个再链接复制，共享网格数据 —— 不这么做上千个就卡死了
+    array: dict[str, Any] = field(default_factory=dict)
 
     def asset_path(self, root: str = REPO_ROOT) -> str | None:
         if not self.asset:
@@ -300,6 +303,7 @@ def load_shot(path: str) -> Shot:
             capture=s_raw.get("capture") or {},
             bind=s_raw.get("bind") or {},
             run=s_raw.get("run") or {},
+            array=s_raw.get("array") or {},
         )
         _check_keys(subject.keys, duration, f"{where}.keys")
         subjects.append(subject)
@@ -399,6 +403,7 @@ def shot_to_dict(shot: Shot) -> dict[str, Any]:
                 "capture": s.capture,
                 "bind": s.bind,
                 "run": s.run,
+                "array": s.array,
             }
             for s in shot.subjects
         ],
@@ -446,6 +451,7 @@ def shot_from_dict(raw: dict[str, Any]) -> Shot:
                 capture=s.get("capture") or {},
                 bind=s.get("bind") or {},
                 run=s.get("run") or {},
+                array=s.get("array") or {},
             )
             for s in raw.get("subjects", [])
         ],

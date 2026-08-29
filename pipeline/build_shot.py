@@ -1025,6 +1025,51 @@ def gourd_anchor(subject) -> tuple:
     return (0.0, -unit * 1.15, height - unit * 4.1)
 
 
+def build_array(name: str, base: bpy.types.Object, array: dict,
+                scene: bpy.types.Scene) -> int:
+    """把一个物体铺成阵列。**链接复制，共享网格数据。**
+
+    不能靠循环调 build_subject —— 每个都要走 primitive_add + join + origin_set，
+    一千个就是几千次 bpy.ops，会卡到没法用。`obj.copy()` 默认共享 mesh 数据，
+    建一份网格、复制 N 个对象引用，代价基本只有对象本身。
+
+    这就是科长那条 model once paste everywhere 推到极限。
+
+    错位量用序号的整数哈希算，不用随机数 —— 同一份分镜渲两遍必须一模一样。
+    """
+    count = int(array.get("count", 1))
+    cols, rows = array.get("grid", [max(1, int(count ** 0.5)), 0])[:2]
+    cols = max(1, int(cols))
+    rows = int(rows) if rows else (count + cols - 1) // cols
+    sx, sy = array.get("spacing", [1.2, 1.2])[:2]
+    ox, oy, oz = array.get("origin", [0.0, 0.0, 0.0])[:3]
+    jit = array.get("jitter") or {}
+    jr = float(jit.get("rot", 0.0))
+    jz = float(jit.get("z", 0.0))
+    jxy = float(jit.get("xy", 0.0))
+
+    made = 0
+    for i in range(count):
+        c, r = i % cols, i // cols
+        if r >= rows:
+            break
+        # 整数哈希当伪随机，保证可复现
+        h1 = ((i * 1103515245 + 12345) >> 8) % 1000 / 1000.0
+        h2 = ((i * 22695477 + 1) >> 9) % 1000 / 1000.0
+        h3 = ((i * 69069 + 5) >> 7) % 1000 / 1000.0
+
+        obj = base if i == 0 else base.copy()      # copy() 默认共享 mesh
+        if i:
+            scene.collection.objects.link(obj)
+            made += 1
+        obj.location = (ox + c * sx + (h1 - 0.5) * 2 * jxy,
+                        oy + r * sy + (h2 - 0.5) * 2 * jxy,
+                        oz + (h3 - 0.5) * 2 * jz)
+        obj.rotation_euler = (0.0, 0.0, math.radians((h1 - 0.5) * 2 * jr))
+        obj.name = f"{name}_{i:04d}"
+    return made + 1
+
+
 def apply_run(name: str, obj: bpy.types.Object, subject, run: dict,
               height: float, unit: float, fps: int) -> int:
     """跑起来。
@@ -1316,6 +1361,7 @@ def build(shot: Shot, style: dict) -> dict:
     captured = 0
     bound_n = 0
     ran = 0
+    arrayed = 0
     for subject in shot.subjects:
         if subject.run:
             # 跑的话腿和胳膊都要单独建，袖子也归胳膊管
@@ -1327,6 +1373,9 @@ def build(shot: Shot, style: dict) -> dict:
             subject.proxy = proxy
         obj = build_subject(subject)
         objs[subject.name] = obj
+        if subject.array:
+            arrayed += build_array(subject.name, obj, subject.array, scene)
+            continue                 # 阵列成员是布景，不单独打关键帧
         apply_keys(obj, subject.keys, fps)
         if subject.flash:
             flashed += apply_flash(subject.name, subject.flash, fps)
@@ -1391,4 +1440,5 @@ def build(shot: Shot, style: dict) -> dict:
         "capture": captured,
         "bind": bound_n,
         "run": ran,
+        "array": arrayed,
     }

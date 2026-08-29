@@ -1,0 +1,46 @@
+id: sh050
+episode: mgm
+title: 两千八百个葫芦
+
+duration: 5.0
+
+stage:
+  world_color: [0.30, 0.16, 0.36]
+  world_strength: 0.75
+  ground_color: [0.58, 0.12, 0.30]
+
+camera:
+  lens: 26
+  keys:
+    - {t: 0.0, loc: [0.0, -7.0, 2.30], rot: [86.0, 0.0, 0.0]}
+    - {t: 5.0, loc: [0.0, -4.6, 2.05], rot: [86.0, 0.0, 0.0]}
+
+subjects:
+  # 一个葫芦建一次，链接复制 2800 份，共享同一份网格数据
+  - name: hulu
+    proxy: {kind: gourd, color: [0.86, 0.78, 0.20], scale: 0.62, eyes: true}
+    array:
+      count: 2800
+      grid: [70, 40]
+      spacing: [1.15, 1.15]
+      origin: [-39.6, 2.5, 0.0]
+      jitter: {rot: 30, z: 0.06, xy: 0.16}
+    keys:
+      - {t: 0.0, loc: [0.0, 0.0, 0.0]}
+
+  - name: yuan
+    proxy:
+      kind: humanoid
+      height: 1.42
+      color: [0.94, 0.82, 0.76]
+      face: {eyes: true, brows: true, nose: true, hair: twintail, hair_color: [0.94, 0.52, 0.66]}
+      clothes: {robe: [0.96, 0.96, 0.94], sash: [0.90, 0.24, 0.42], length: short}
+      shoes: {color: [0.86, 0.30, 0.44], sole: [0.94, 0.92, 0.88]}
+    keys:
+      - {t: 0.0, loc: [0.0, -1.2, 0.0], rot: [0.0, 0.0, 0.0]}
+      - {t: 5.0, loc: [0.0, -1.2, 0.0], rot: [0.0, 0.0, 0.0]}
+
+notes: |
+  两千八百个葫芦。建一个再链接复制，共享网格数据 ——
+  逐个 build_subject 的话是上万次 bpy.ops，会卡死。
+  错位量用序号的整数哈希，不用随机数，保证同一份分镜渲两遍一模一样。
