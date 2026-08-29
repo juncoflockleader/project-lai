@@ -57,6 +57,15 @@ def main() -> int:
     out_dir = args.out or os.path.join(repo_root, "out", shot.episode, shot.id)
     os.makedirs(out_dir, exist_ok=True)
 
+    # 先清掉旧帧。不清的话，把镜头改短之后旧帧还留在目录里，
+    # 新的只覆盖前面一段，assemble 照单全收，拼出来的片子比分镜长，
+    # 后半截还是上一版的画面 —— 而且帧数是数目录里的 png，日志跟着一起骗人。
+    stale = [f for f in os.listdir(out_dir) if f.endswith(".png")]
+    for f in stale:
+        os.remove(os.path.join(out_dir, f))
+    if stale:
+        print(f"[lai] 清掉 {len(stale)} 张旧帧")
+
     print(f"[lai] 镜头 {shot.slug}  {shot.title}")
     built = build_shot.build(shot, style)
     print(f"[lai] 搭好了：{built['subjects']} 个东西，帧 {built['frames'][0]}-{built['frames'][1]}")
