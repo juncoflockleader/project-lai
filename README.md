@@ -85,8 +85,9 @@ out/                  渲染产物，不进版本库
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 提交规矩 |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | 科长历次拍板，带实测数字 |
 
-另外两份是特师体，讲为什么做和做到哪：
-[docs/VISION.md](docs/VISION.md)、[docs/ROADMAP.md](docs/ROADMAP.md)。
+另外几份是特师体，讲为什么做和做到哪：
+[docs/VISION.md](docs/VISION.md)、[docs/ROADMAP.md](docs/ROADMAP.md)、
+[docs/notes/](docs/notes/)（第一帧、工作日志）。
 
 ## 说明
 
